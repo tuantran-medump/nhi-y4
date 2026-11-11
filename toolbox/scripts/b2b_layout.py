@@ -33,6 +33,11 @@ def _is_heading(line: str) -> bool:
     return bool(HEAD.match(line)) and len(line) < 90 and not line.rstrip().endswith((".", ";", ":", ","))
 
 
+def _is_caps(line: str) -> bool:
+    letters = [c for c in line if c.isalpha()]
+    return len(letters) >= 3 and all(c.isupper() for c in letters)
+
+
 def _sentences(par: str) -> list[str]:
     out, start = [], 0
     for m in re.finditer(r"(?<=[.!?;])\s+(?=\S)", par):
@@ -40,6 +45,8 @@ def _sentences(par: str) -> list[str]:
         nxt = par[m.end()]
         if before.endswith(".") and re.search(r"(?:^|\s|\.)[^\W\d_]{1,2}\.$", before):
             continue
+        if re.fullmatch(r"(?:B[àa]i\s*)?\d+\.", before.strip()):
+            continue  # số thứ tự đầu câu, không phải hết câu
         if before.endswith(";") or nxt.isupper() or nxt.isdigit() or nxt == "(":
             out.append(before)
             start = m.end()
@@ -67,7 +74,7 @@ def split_units(text: str) -> list[str]:
             in_block = True
         elif not line:
             flush()
-        elif PAGE.match(line) or _is_heading(line):
+        elif PAGE.match(line) or _is_heading(line) or _is_caps(line):
             flush()
             units.append(line)
         else:

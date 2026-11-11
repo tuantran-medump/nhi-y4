@@ -125,6 +125,7 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 |---|---|---|
 | B1 | Cắt chữ của bài từ kho, dựng khung theo đề mục sách | Script |
 | B2 | Áp từ điển lỗi, rồi model nhỏ soát **từng trang** bằng cách xem ảnh cạnh chữ OCR, chỉ phát các chỗ cần sửa (`b2_review.py`). Bắt buộc vì lỗi dấu thường vẫn ra từ có nghĩa, script không phát hiện được | Script và Agent |
+| B2a | Sau khi soát trang, chạy `b2_ocr_fix.py <bài> diacritics`: script so từng cặp từ với kho chữ thật và báo cặp nghi sai dấu. Agent xem đúng các dòng đó và vá | Script và Agent |
 | B2b | Script tách câu và đánh số dòng. Agent chỉ phát bảng "dòng, cấp, ký hiệu, điểm tách". Script dựng danh sách rồi so khớp từng từ với bản B2 | Script và Agent |
 | B3 | Chốt danh sách nguồn tham khảo và phần viết tay cần đọc | Agent |
 | B4 | Đọc ảnh có chọn lọc: viết tay ưu tiên Notes, CBL; trên slide chỉ tối đa vài file mỗi bài | Agent đọc ảnh |

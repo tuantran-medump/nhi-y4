@@ -6,6 +6,7 @@ Với mỗi task, xem ảnh, so với từng dòng chữ, rồi ghi `kho/lessons
 `[{"line": 12, "old": "phôi", "new": "phổi"}]`
 
 - Soát kỹ dấu tiếng Việt. Lỗi hay gặp vẫn ra từ có nghĩa: tiêu/tiểu, thê/thể, phôi/phổi, đây/đầy, yêu/yếu, tô/tố, âm/ẩm.
+- Tiêu đề in hoa cũng phải soát dấu (MỤC TIÊU, VIÊM PHỔI). Ký hiệu khí: `SpO,` là `SpO2`, `FiO,` là `FiO2`, `CO,` là `CO2`, ghi `"verified": true`.
 - `old` chỉ gồm đoạn đủ ngắn nhưng phải có trong dòng đó. Mỗi dòng có nhiều lỗi thì ghi nhiều mục, theo thứ tự trái sang phải.
 - Chỉ sửa cho khớp ảnh. Không đổi từ, số, đơn vị theo suy đoán, không sửa kiến thức.
 - Sửa chữ số: phải nhìn rõ trên ảnh và ghi `"verified": true`. Không chắc thì đổi đoạn đó thành `[?chữ?]`.
