@@ -10,6 +10,7 @@ h4, h5 { font-size: 11.5pt; color: #0f4c8a; margin: 12px 0 5px; page-break-after
 p { margin: 6px 0; }
 nav { border: 1px solid #d5dde8; border-radius: 6px; padding: 10px 14px; margin: 10px 0; font-size: 10pt; page-break-after: always; }
 nav a { color: #0f3d73; text-decoration: none; display: block; line-height: 1.55; }
+nav.long { columns: 2; column-gap: 18px; font-size: 9pt; } nav.long b { column-span: all; } nav.long a { break-inside: avoid; }
 nav .l2 { padding-left: 10px; } nav .l3 { padding-left: 24px; color: #47586b; }
 ul { list-style: none; margin: 3px 0; padding-left: 20px; }
 li { position: relative; margin: 4px 0; }

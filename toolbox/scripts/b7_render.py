@@ -286,12 +286,16 @@ def crop_figure(pdf: str, page: int, rect: tuple, out: str, dpi: int = 200) -> N
         d[page - 1].get_pixmap(dpi=dpi, clip=pymupdf.Rect(rect)).save(out)
 
 
+NAV_ONE_COLUMN = 34
+
+
 def _nav(page_html: str) -> str:
     items = re.findall(r'<h([23])\s+id="(h\d+)">(.*?)</h\1>', page_html)
     if not items:
         return ""
     links = "".join(f'<a class="l{n}" href="#{i}">{re.sub("<.*?>", "", t)}</a>' for n, i, t in items)
-    return f"<nav><b>Mục lục</b>{links}</nav>"
+    cls = ' class="long"' if len(items) > NAV_ONE_COLUMN else ""  # mục lục dài chia 2 cột để không tràn trang
+    return f"<nav{cls}><b>Mục lục</b>{links}</nav>"
 
 
 def print_pdf(html_path: str, pdf_path: str) -> None:

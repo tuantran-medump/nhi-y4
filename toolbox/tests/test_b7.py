@@ -59,6 +59,12 @@ class TestNavAndCrop(unittest.TestCase):
         self.assertIn("1.1. Dịch tễ", nav)
         self.assertNotIn("Tên", nav)
 
+    def test_long_nav_uses_two_columns(self):
+        short = b7_render._nav(b7_render.md_to_html("## A\n## B", {}))
+        long_md = "\n".join(f"## Mục {i}" for i in range(40))
+        self.assertNotIn('class="long"', short)
+        self.assertIn('<nav class="long">', b7_render._nav(b7_render.md_to_html(long_md, {})))
+
     def test_crop_figure_size(self):
         import pymupdf
         with tempfile.TemporaryDirectory() as t:
