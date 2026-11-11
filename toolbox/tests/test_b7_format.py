@@ -105,6 +105,16 @@ class TestStyle(unittest.TestCase):
         html = r.md_to_html("| Mã | Link |\n|---|---|\n| S1 | [Mở](https://drive.google.com/file/d/abc/view) |", {})
         self.assertIn('<a href="https://drive.google.com/file/d/abc/view">Mở</a>', html)
 
+    def test_css_embeds_inter_fonts(self):
+        css = r.page_css()
+        self.assertIn('font-family: "Inter"', css)
+        self.assertEqual(css.count("data:font/ttf;base64,"), 2)
+        self.assertNotIn("{{", css)
+
+    def test_note_never_italic(self):
+        css = r.page_css()
+        self.assertRegex(css, r"\.note \{[^}]*font-style: normal")
+
     def test_book_parenthesis_not_styled(self):
         self.assertNotIn('class="note"', r.md_to_html("- Bệnh (cấp) nặng.", {}))
 

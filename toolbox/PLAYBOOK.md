@@ -152,6 +152,8 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 5. Bỏ bản trùng trước khi đọc.
 6. Đọc ảnh theo lô bằng ảnh ghép nhiều vùng, độ phân giải vừa đủ, không đưa ảnh vào cuộc chat chính.
 7. Kiểm tra bằng script, chỉ mở đúng dòng bị báo lỗi.
+Không giảm số file tổng hợp đưa vào mỗi bài (quyết định của người dùng): mọi file cùng chuyên khoa và file tổng hợp đều được xét.
+
 8. Lọc câu mới: script chỉ bỏ các câu trong nguồn tham khảo giống hệt câu sách từng từ, model đọc phần còn lại. Câu gần giống luôn được giữ vì có thể khác thuốc, đường dùng hoặc liều.
 9. Từ điển lỗi OCR tích lũy: mỗi lỗi sửa một lần rồi lưu, các bài sau script tự sửa.
 10. Thẻ bằng chứng: đọc xong một nguồn thì ghi thẻ ngắn (ý, mã, trang). File dùng cho nhiều bài chỉ nạp thẻ, không đọc lại.
@@ -211,6 +213,8 @@ Mục không có nội dung vẫn giữ tiêu đề và ghi "Không có trong ng
 | C3 | [data/drive_links.csv](data/drive_links.csv) | Điền link Drive rồi chạy lại `b7_render.py` |
 | Mọi bước | [scripts/progress.py](scripts/progress.py) | Sổ tiến độ |
 | Lô | [prompts/batch_brief.md](templates/prompts/batch_brief.md) | Brief giao harness |
+
+**Font:** Inter nhúng từ `templates/fonts` (giấy phép SIL OFL), không cần cài vào máy.
 
 **OCR:** Tesseract dùng dữ liệu `tessdata_best`, ngôn ngữ `vie`, cấu hình ở `config.json`. Bản dữ liệu nhẹ cài mặc định đọc sai dấu nhiều hơn hẳn.
 

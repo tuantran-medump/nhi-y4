@@ -4,6 +4,7 @@ Chạy: python toolbox/scripts/b7_render.py G1-B08
 Đầu vào: kho/lessons/<lesson>/body.md và extra.json
 extra.json có các khóa: summary, approach, experience, exam, conflicts, missing
 """
+import base64
 import datetime
 import html as htmlmod
 import os
@@ -330,11 +331,20 @@ def finish_pdf(pdf_path: str, headings: list[tuple[int, str]]) -> None:
     os.replace(tmp, pdf_path)
 
 
+def page_css() -> str:
+    """CSS của bài, font Inter nhúng thẳng để Edge in được mà không cần cài font."""
+    css = common.read_text(os.path.join(common.TOOLBOX, "templates", "lesson.css"))
+    for key, name in (("inter", "Inter.ttf"), ("inter_italic", "Inter-Italic.ttf")):
+        with open(os.path.join(common.TOOLBOX, "templates", "fonts", name), "rb") as f:
+            css = css.replace("{{" + key + "}}", base64.b64encode(f.read()).decode("ascii"))
+    return css
+
+
 def render(lesson: str, out_path: str | None = None) -> str:
     info = next(r for r in common.read_csv(common.data_path("lessons.csv")) if r["lesson"] == lesson)
     md = assemble(info)
     body = md_to_html(md, _load_links())
-    css = common.read_text(os.path.join(common.TOOLBOX, "templates", "lesson.css"))
+    css = page_css()
     title_end = body.index("</h1>") + 5
     page = (f'<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>{htmlmod.escape(info["title"])}</title>'
             f"<style>{css}</style></head><body>{body[:title_end]}{_nav(body)}{body[title_end:]}</body></html>")
