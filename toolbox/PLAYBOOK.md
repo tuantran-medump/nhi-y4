@@ -176,3 +176,34 @@ Mục không có nội dung vẫn giữ tiêu đề và ghi "Không có trong ng
 3. Báo đúng kết quả: bước nào chưa chạy, chưa kiểm chứng hoặc lỗi thì nói rõ.
 4. Quyết định mới của người dùng được ghi vào playbook ngay, không để trong hội thoại.
 5. Không dùng skill `pdf-extract` và subagent `pdf-vision-reader` vì skill chưa hoàn thiện. Đọc ảnh và viết tay dùng công cụ trong toolbox.
+
+## 8. Toolbox
+
+**Quy định:**
+- Trước khi đọc bất cứ nguồn nào, kiểm tra `kho/` và `data/`. Việc đã có kết quả thì không làm lại.
+- Mọi script, template, tài liệu của dự án nằm trong `toolbox/`. Script mới phải có test và được người dùng duyệt rồi mới thêm vào bảng dưới.
+- Mỗi lần làm bài bắt đầu bằng `progress.py <mã bài>` để biết bước kế tiếp, xong bước nào ghi ngay bước đó.
+
+| Bước | File | Công dụng |
+|---|---|---|
+| A1 | [scripts/a1_inventory.py](scripts/a1_inventory.py) | Lập danh mục, cấp mã nguồn |
+| A2 | [scripts/a2_dedupe.py](scripts/a2_dedupe.py) | Đánh dấu bản trùng |
+| A3 | [scripts/a3_ocr.py](scripts/a3_ocr.py) | OCR sách, `--sample` để kiểm thử |
+| A4 | [scripts/a4_pagemap.py](scripts/a4_pagemap.py) | Bản đồ trang, trang thiếu |
+| A5 | [scripts/a5_extract.py](scripts/a5_extract.py) | Trích chữ vào kho |
+| A6 | [scripts/a6_assign.py](scripts/a6_assign.py) | Gán nguồn vào bài |
+| B1 | [scripts/b1_slice.py](scripts/b1_slice.py) | Cắt chữ của bài |
+| B2 | [scripts/b2_ocr_fix.py](scripts/b2_ocr_fix.py), [prompts/ocr_fix.md](templates/prompts/ocr_fix.md) | Từ điển lỗi OCR, bản vá |
+| B2b | [scripts/b2b_layout.py](scripts/b2b_layout.py), [prompts/layout.md](templates/prompts/layout.md) | Xếp cấp dòng, so khớp từng từ |
+| B3 | [data/lesson_sources.csv](data/lesson_sources.csv) | Danh sách nguồn của bài (sinh ra sau A6) |
+| B4 | [scripts/b4_ink.py](scripts/b4_ink.py), [prompts/read_ink.md](templates/prompts/read_ink.md) | Đọc viết tay và trang scan |
+| B5 | [scripts/b3_novel.py](scripts/b3_novel.py), [scripts/cards.py](scripts/cards.py), [prompts/compose_extra.md](templates/prompts/compose_extra.md) | Lọc câu mới, thẻ bằng chứng, soạn chú thích và Phần B |
+| B6 | [prompts/compose_extra.md](templates/prompts/compose_extra.md), `data/external_sources.csv` | Mâu thuẫn, guideline ngoài |
+| B7 | [scripts/check_lesson.py](scripts/check_lesson.py), [scripts/b7_render.py](scripts/b7_render.py) | Kiểm tra, dựng PDF |
+| C3 | [data/drive_links.csv](data/drive_links.csv) | Điền link Drive rồi chạy lại `b7_render.py` |
+| Mọi bước | [scripts/progress.py](scripts/progress.py) | Sổ tiến độ |
+| Lô | [prompts/batch_brief.md](templates/prompts/batch_brief.md) | Brief giao harness |
+
+**Dữ liệu và cấu hình:** [config.json](config.json) (đường dẫn), [data/lessons.csv](data/lessons.csv) (bài, hiệp hội), [data/topic_keywords.csv](data/topic_keywords.csv) (từ khóa), [data/ocr_dict.tsv](data/ocr_dict.tsv) (từ điển OCR), [templates/lesson.md](templates/lesson.md) và [templates/lesson.css](templates/lesson.css) (template).
+
+**Kiểm thử toolbox:** `python -m unittest discover -s toolbox/tests`. Kế hoạch dựng: [docs/plan-toolbox.md](docs/plan-toolbox.md).
