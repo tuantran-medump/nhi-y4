@@ -61,6 +61,16 @@ def _lesson_of(printed: int | None, starts: list[tuple[int, str]]) -> str:
     return cur
 
 
+def _title_page_number(text: str, code: str, lessons: list[dict]) -> int | None:
+    """Trang đầu bài thường không đọc được số trang: nhận theo tên bài và mục tiêu học tập."""
+    m = re.search(r"B[àa]i\s*(\d{1,2})\s*[.,]", "\n".join(text.splitlines()[:8]))
+    if not m or not re.search(r"M[ỤU]C\s*T[IÊỂ]+U", text, re.I):
+        return None
+    lesson = f"{code}-B{int(m.group(1)):02d}"
+    row = next((r for r in lessons if r["lesson"] == lesson), None)
+    return int(row["start_printed"]) if row else None
+
+
 def _effective_pages(numbers: dict[int, int | None]) -> tuple[dict[int, int], set[int]]:
     """Đánh số lại trang PDF, bỏ qua trang scan lặp (hai trang liền cùng số in)."""
     eff: dict[int, int] = {}
@@ -78,6 +88,9 @@ def _effective_pages(numbers: dict[int, int | None]) -> tuple[dict[int, int], se
 def build_map(code: str, lessons: list[dict]) -> tuple[list[dict], list[dict]]:
     files = sorted(glob.glob(common.kho_path(code, "p[0-9][0-9][0-9][0-9].txt")))
     numbers = {int(os.path.basename(f)[1:5]): parse_printed(common.read_text(f)) for f in files}
+    title_pages = {p: _title_page_number(common.read_text(common.page_file(code, p)), code, lessons)
+                   for p, v in numbers.items() if v is None}
+    numbers.update({p: v for p, v in title_pages.items() if v is not None})
     eff, dup = _effective_pages(numbers)
     parsed = [(eff[p], v) for p, v in sorted(numbers.items()) if v is not None and p not in dup]
     keep = _accepted(parsed)

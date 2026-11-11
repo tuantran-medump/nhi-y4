@@ -48,6 +48,16 @@ class TestPageMap(Home):
         _, gaps = a4_pagemap.build_map("G1", LESSONS)
         self.assertEqual([g["printed_page"] for g in gaps], [161])
 
+    def test_lesson_title_page_without_number(self):
+        lessons = [{"lesson": "G1-B06", "book": "G1", "title": "A", "start_printed": "83"},
+                   {"lesson": "G1-B07", "book": "G1", "title": "B", "start_printed": "105"}]
+        self.numbered([102, 103])
+        common.write_text(common.page_file("G1", 3), "Bài 7. VIÊM TIỂU PHẾ QUẢN CẤP\nTS.BS. A\nMỤC TIÊU HỌC TẬP\nCâu.")
+        common.write_text(common.page_file("G1", 4), "106 ♦ NHI KHOA - Tập 1\nNoi dung")
+        rows, gaps = a4_pagemap.build_map("G1", lessons)
+        self.assertEqual((rows[2]["lesson"], rows[2]["printed_page"], rows[2]["confidence"]), ("G1-B07", 105, "ok"))
+        self.assertEqual([g["printed_page"] for g in gaps], [104])
+
     def test_misread_last_page_uncertain(self):
         self.numbered([156, 157, 158, 162])
         rows, gaps = a4_pagemap.build_map("G1", LESSONS)
