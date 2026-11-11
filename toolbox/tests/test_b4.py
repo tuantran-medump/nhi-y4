@@ -99,6 +99,12 @@ class TestTasks(Base):
         common.write_json(common.kho_path("ink", "L1", "results", tasks[0]["id"] + ".json"), {"1": "có"})
         self.assertEqual(b4_ink.merge("L1")["missing"], [tasks[0]["id"] + ":2"])
 
+    def test_string_result_accepted_for_single_item(self):
+        self.ink_case()
+        tasks = b4_ink.make_tasks("L1", self.root, conf_engine=boom)
+        common.write_json(common.kho_path("ink", "L1", "results", tasks[0]["id"] + ".json"), "chữ tay")
+        self.assertEqual(b4_ink.merge("L1")["missing"], [])
+
     def test_uncertain_counted(self):
         self.ink_case()
         tasks = b4_ink.make_tasks("L1", self.root, conf_engine=boom)

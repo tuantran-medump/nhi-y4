@@ -126,6 +126,8 @@ def merge(lesson: str) -> dict:
     items = list(state["cached"])
     for t in state["tasks"]:
         result = common.read_json(common.kho_path("ink", lesson, "results", t["id"] + ".json"), {})
+        if isinstance(result, str):  # một số kết quả ghi thẳng chuỗi cho task một nhãn
+            result = {"1": result} if len(t["items"]) == 1 else {}
         for label, item in t["items"].items():
             if label in result:
                 cache[item["sha"]] = result[label]
