@@ -49,7 +49,7 @@ Mâu thuẫn là khi hai nguồn đưa ra chỉ định, liều, ngưỡng hoặ
 
 1. Thân bài giữ theo sách, có chú thích ngoặc đơn như mục 2.3.
 2. Mục "Mâu thuẫn nguồn" ghi: điểm lệch, từng nguồn nói gì, kết luận của hiệp hội trọng tài.
-3. Mỗi bài dùng 1 hiệp hội, chốt trước khi soạn. Mặc định:
+3. Mỗi bài ưu tiên 1 hiệp hội, chốt trước khi soạn. Không có hoặc không đọc được guideline của hiệp hội đó thì được dùng guideline uy tín khác (ví dụ PIDS/IDSA, BTS, Bộ Y tế), ghi rõ tên. Mặc định:
 
 | Bài | Hiệp hội |
 |---|---|
@@ -75,11 +75,13 @@ Mọi ý phải truy được về nguồn. Ngoại lệ duy nhất là mục 2.
 - Mã ngắn cuối ý: `G1`, `G2` (giáo trình), `S` (slide), `C` (CBL), `N` (notes), `R` (tham khảo khác), `E` (guideline ngoài).
 - Bắt buộc gắn ở số liệu, liều, tiêu chuẩn, chỉ định và ý quan trọng.
 - Với mọi nguồn, kể cả giáo trình, `p` là **số trang của file PDF**, không phải số trang in. Số trang in chỉ dùng để xác định ranh giới bài và báo trang thiếu.
+- Mã nguồn ưu tiên đặt cuối câu. Nhiều trang cùng nguồn gộp một mã: `[S61:p53,p56,p61-67]`. Script tự gom khi dựng PDF. Mã trong chú thích ngoặc đơn nằm cuối chú thích.
 - Mã là link bấm được tới Google Drive. Link được gắn bằng script từ bảng mã nguồn sau khi người dùng upload. Link Drive thường chỉ mở đúng file, nên mã luôn giữ số trang.
 
 ### 2.7 Hình và bảng
 
 - Bảng và lưu đồ có chữ: gõ lại để tìm kiếm và sửa được. Trong `fixed.txt`, bọc phần OCR của bảng bằng dòng `<<block:t1>>` và `<<endblock>>`, gõ lại ở `kho/lessons/<bài>/blocks/t1.md`. Script kiểm tra mọi con số trong khối gốc có mặt trong bản gõ lại.
+- Tên bảng và tên hình in nghiêng, đứng riêng một dòng, không gạch đầu dòng.
 - Hình giải phẫu, X-quang, ảnh lâm sàng, biểu đồ: cắt từ bản gốc bằng script và chèn đúng chỗ, giữ số hình và chú thích của sách.
 
 ### 2.8 An toàn file

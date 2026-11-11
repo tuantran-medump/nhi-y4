@@ -35,12 +35,12 @@ class TestHtml(unittest.TestCase):
 
     def test_citation_linked_when_url(self):
         html = b7_render.md_to_html("- Câu [S12:p4]", {"S12": "https://drive/x"})
-        self.assertIn('<a href="https://drive/x">[S12:p4]</a>', html)
+        self.assertIn('href="https://drive/x"', html)
 
     def test_citation_plain_when_no_url(self):
         html = b7_render.md_to_html("- Câu [S12:p4]", {})
         self.assertNotIn("<a ", html)
-        self.assertIn("[S12:p4]", html)
+        self.assertIn("S12 p4", html)
 
     def test_page_marker_hidden(self):
         self.assertNotIn("p118", b7_render.md_to_html("<<p118>>\n- Câu", {}))

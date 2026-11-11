@@ -21,6 +21,9 @@ class TestUnits(unittest.TestCase):
     def test_numbered_line_starts_new_unit(self):
         self.assertEqual(split_units("D. Bốn\n2. Câu hỏi hai"), ["D. Bốn", "2. Câu hỏi hai"])
 
+    def test_table_number_stays_with_title(self):
+        self.assertEqual(split_units("Bảng 8.5. Điều trị ngoại trú"), ["Bảng 8.5. Điều trị ngoại trú"])
+
     def test_sentence_after_number_value_still_splits(self):
         self.assertEqual(split_units("Liều là 5. Sau đó giảm."), ["Liều là 5.", "Sau đó giảm."])
 

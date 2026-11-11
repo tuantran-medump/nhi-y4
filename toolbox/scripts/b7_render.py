@@ -21,16 +21,105 @@ CITE = re.compile(r"\[([GSCNRE]\d*):p([^\]]+)\]")
 LIST = re.compile(r"^(\s*)([-+*]|\d+\.|[IVXLC]+\.)\s+(.*)$")
 EMPTY = "Không có trong nguồn"
 MARK_CLASS = {"-": "m-dash", "+": "m-plus", "*": "m-star"}
-GLYPH = {"-": "–", "+": "+", "*": "*"}
+GLYPH = {"-": "•", "+": "◦", "*": "▪"}
+NOTE_SPAN = re.compile(r"\(([^()]*\[[SCNRE]\d+:p[^\]]+\][^()]*)\)")
+CITE_RUN = re.compile(r"(?:\s*\[[GSCNRE]\d*:p[^\]]+\]){2,}")
+CITE_ANY = re.compile(r"\s*\[[GSCNRE]\d*:p[^\]]+\]")
+BARE_CAPTION = re.compile(r"(?:Bảng|Hình)\s*\d+(?:\.\d+)?\.?(?:\s*\[[GSCNRE]\d*:p[^\]]+\])*")
+CAPTION = re.compile(r"^(?:Bảng|Hình)\s*\d+(?:\.\d+)?\b")
+
+
+def _expand(pages: str) -> list[int] | None:
+    nums: list[int] = []
+    for part in pages.split(","):
+        m = re.fullmatch(r"p?(\d+)(?:-p?(\d+))?", part.strip())
+        if not m:
+            return None
+        start = int(m.group(1))
+        nums += range(start, int(m.group(2) or start) + 1)
+    return nums
+
+
+def _compress(nums: list[int]) -> str:
+    parts, ordered = [], sorted(set(nums))
+    start = prev = ordered[0]
+    for n in ordered[1:] + [None]:
+        if n is not None and n == prev + 1:
+            prev = n
+            continue
+        parts.append(f"p{start}" if start == prev else f"p{start}-{prev}")
+        start = prev = n
+    return ",".join(parts)
+
+
+def _merge(cites: list[tuple[str, str]]) -> str:
+    """Gộp các mã cùng nguồn: [S1:p53,p56,p61-67]."""
+    pages: dict[str, list[int]] = {}
+    raw: list[str] = []
+    for code, value in cites:
+        nums = _expand(value)
+        if nums is None:
+            raw.append(f"[{code}:p{value}]")
+        else:
+            pages.setdefault(code, []).extend(nums)
+    return "".join(f"[{c}:{_compress(n)}]" for c, n in pages.items()) + "".join(raw)
+
+
+def _sentence_end(buf: str, text: str, i: int) -> bool:
+    if re.search(r"(?:^|[\s(.])[^\W\d_]{1,2}\.$", buf):
+        return False
+    rest = text[i:]
+    if not rest.strip():
+        return True
+    if not rest[0].isspace():
+        return False
+    nxt = rest.strip()[0]
+    return nxt.isupper() or nxt.isdigit() or nxt in "[("
+
+
+def tidy_citations(text: str) -> str:
+    """Đưa mã nguồn về cuối câu và gộp số trang. Mã trong ngoặc đơn ở nguyên trong ngoặc."""
+    text = CITE_RUN.sub(lambda m: " " + _merge(CITE.findall(m.group(0))), text)
+    done: list[list] = []
+    buf, cites, depth, i = "", [], 0, 0
+    while i < len(text):
+        m = CITE.match(text, i) if depth == 0 else None
+        if m:
+            if not buf.strip() and done:
+                done[-1][1].append(m.groups())
+            else:
+                cites.append(m.groups())
+                buf = buf.rstrip()
+            i = m.end()
+            continue
+        ch = text[i]
+        depth += ch == "("
+        depth = max(depth - (ch == ")"), 0)
+        buf += ch
+        i += 1
+        if depth == 0 and ch in ".!?" and _sentence_end(buf, text, i):
+            done.append([buf.strip(), cites])
+            buf, cites = "", []
+    if buf.strip():
+        done.append([buf.strip(), cites])
+    elif cites and done:
+        done[-1][1] += cites
+    return " ".join(s + (" " + _merge(c) if c else "") for s, c in done)
 
 
 def _inline(text: str, links: dict) -> str:
     out = htmlmod.escape(text, quote=False)
     out = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", out)
 
+    out = NOTE_SPAN.sub(r'<span class="note">(\1)</span>', out)
+
     def cite(m: re.Match) -> str:
-        url = links.get(m.group(1))
-        return f'<a href="{htmlmod.escape(url)}">{m.group(0)}</a>' if url else m.group(0)
+        code = m.group(1)
+        label = f"{code} p" + m.group(2).replace(",p", ", p")
+        kind = "book" if code.startswith("G") else "ref"
+        span = f'<span class="cite {kind}">{label}</span>'
+        url = links.get(code)
+        return f'<a class="cite-link" href="{htmlmod.escape(url)}">{span}</a>' if url else span
 
     return CITE.sub(cite, out)
 
@@ -64,7 +153,15 @@ def md_to_html(md: str, links: dict) -> str:
         m = LIST.match(line)
         if m and not line.lstrip().startswith("**"):
             level = len(m.group(1)) // 2 + 1
-            marker, text = m.group(2), m.group(3)
+            marker, text = m.group(2), tidy_citations(m.group(3))
+            if CAPTION.match(text):
+                close_to(0)
+                if BARE_CAPTION.fullmatch(text) and i < len(lines) and LIST.match(lines[i]):
+                    text = tidy_citations(text.split(" [")[0] + " " + LIST.match(lines[i]).group(3)
+                                          + "".join(CITE_ANY.findall(text)))
+                    i += 1
+                out.append(f'<p class="caption">{_inline(text, links)}</p>')
+                continue
             if level > depth:
                 while depth < level:
                     out.append("<ul>")
@@ -91,13 +188,15 @@ def md_to_html(md: str, links: dict) -> str:
                 i += 1
             out.append(_table(block, links))
         elif line.startswith(">"):
-            out.append(f'<div class="box">{_inline(line[1:].strip(), links)}</div>')
+            out.append(f'<div class="box">{_inline(tidy_citations(line[1:].strip()), links)}</div>')
         else:
             img = re.fullmatch(r"!\[(.*?)\]\((.*?)\)", line.strip())
             if img:
                 out.append(f'<img src="{htmlmod.escape(img.group(2))}" alt="{htmlmod.escape(img.group(1))}">')
             else:
-                out.append(f"<p>{_inline(line, links)}</p>")
+                tidy = tidy_citations(line)
+                cls = ' class="caption"' if CAPTION.match(tidy) else ""
+                out.append(f"<p{cls}>{_inline(tidy, links)}</p>")
     close_to(0)
     return "\n".join(out)
 

@@ -33,6 +33,7 @@ Mã bài: ________  Ngày kiểm: ________
 
 - [ ] Số liệu, liều, tiêu chuẩn, chỉ định đều có mã nguồn (2.6)
 - [ ] Số trang trong mã nguồn là số trang của file PDF, kể cả giáo trình (2.6)
+- [ ] Mã nguồn ở cuối câu, nhiều trang cùng nguồn đã gộp (2.6)
 - [ ] Mọi chỉnh sửa từ nguồn khác nằm trong ngoặc đơn ngay sau ý, có mã nguồn (2.3)
 - [ ] Mâu thuẫn có đủ: điểm lệch, từng nguồn nói gì, kết luận của hiệp hội trọng tài (2.4)
 - [ ] Thân bài vẫn giữ theo sách ở điểm mâu thuẫn (2.4)
@@ -43,6 +44,7 @@ Mã bài: ________  Ngày kiểm: ________
 
 - [ ] Bảng và lưu đồ có chữ đã gõ lại, đủ hàng cột so với gốc (2.7)
 - [ ] Hình gốc đặt đúng chỗ, giữ số hình và chú thích (2.7)
+- [ ] Tên bảng, tên hình in nghiêng, không gạch đầu dòng (2.7)
 
 ## 6. Cấu trúc và Phần B
 

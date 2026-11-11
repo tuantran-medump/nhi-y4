@@ -46,7 +46,7 @@ def _sentences(par: str) -> list[str]:
         nxt = par[m.end()]
         if before.endswith(".") and re.search(r"(?:^|\s|\.)[^\W\d_]{1,2}\.$", before):
             continue
-        if re.fullmatch(r"(?:B[àa]i\s*)?\d+\.", before.strip()):
+        if re.fullmatch(r"(?:(?:B[àa]i|Bảng|Hình)\s*)?\d+(?:\.\d+)*\.", before.strip()):
             continue  # số thứ tự đầu câu, không phải hết câu
         if before.endswith(";") or nxt.isupper() or nxt.isdigit() or nxt == "(":
             out.append(before)
