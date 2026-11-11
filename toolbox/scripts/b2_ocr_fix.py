@@ -27,7 +27,7 @@ def _has_digit(s: str) -> bool:
 
 
 def _digits(s: str) -> list[str]:
-    return [c for c in s if c.isdigit()]
+    return [c for c in re.sub(r"<<[^>]*>>", "", s) if c.isdigit()]
 
 
 def load_dict(path: str | None = None) -> list[tuple[str, str]]:

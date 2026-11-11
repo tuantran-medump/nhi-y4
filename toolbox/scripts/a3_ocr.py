@@ -36,7 +36,7 @@ def tesseract_page(png: bytes) -> str:
 
 def tesseract_conf(png: bytes) -> tuple[str, float]:
     """Trả về chữ và độ tin cậy trung bình (0-100) của trang."""
-    tsv = _run_tesseract(png, ["tsv"])
+    tsv = _run_tesseract(png, ["-c", "tessedit_create_tsv=1"])
     words, confs = [], []
     for line in tsv.splitlines()[1:]:
         cols = line.split("\t")

@@ -28,3 +28,17 @@ class TestCommand(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestConfidence(unittest.TestCase):
+    def test_tsv_requested_without_config_file(self):
+        tsv = ("level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n"
+               "5\t1\t1\t1\t1\t1\t0\t0\t9\t9\t90.0\tchữ\n")
+        done = mock.Mock(stdout=tsv.encode("utf-8"))
+        with mock.patch.object(a3_ocr.common, "load_config", return_value=CFG), \
+                mock.patch.object(a3_ocr.subprocess, "run", return_value=done) as run:
+            text, conf = a3_ocr.tesseract_conf(b"png")
+        cmd = run.call_args[0][0]
+        self.assertIn("tessedit_create_tsv=1", cmd)
+        self.assertNotIn("tsv", cmd)
+        self.assertEqual((text, conf), ("chữ", 90.0))

@@ -267,3 +267,9 @@ class TestBadFiles(Home):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestBlockWrapGuard(unittest.TestCase):
+    def test_block_name_digits_not_a_digit_change(self):
+        out = b2_ocr_fix.apply_patch("Sơ sinh", [{"line": 1, "old": "Sơ sinh", "new": "<<block:t128a>>\nSơ sinh"}])
+        self.assertEqual(out, "<<block:t128a>>\nSơ sinh")
