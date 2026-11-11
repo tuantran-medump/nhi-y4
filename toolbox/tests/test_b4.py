@@ -63,6 +63,15 @@ class TestTasks(Base):
         self.assertEqual(sorted(tasks[0]["items"]), ["1", "2", "3"])
         self.assertTrue(os.path.exists(common.kho_path("ink", "L1", tasks[0]["image"])))
 
+    def test_region_outside_page_skipped(self):
+        d = pymupdf.open()
+        d.new_page().add_ink_annot([[(900, 1200), (950, 1250)]])
+        d.save(os.path.join(self.root, "a.pdf"))
+        d.close()
+        self.setup_data([{"lesson": "L1", "code": "N001", "pages": "1", "score": 1, "ink_pages": "1"}],
+                        [{"code": "N001", "path": "a.pdf", "kind": "text", "status": "primary"}])
+        self.assertEqual(b4_ink.make_tasks("L1", self.root, conf_engine=boom), [])
+
     def test_sheet_limit(self):
         self.ink_case(strokes=13)
         tasks = b4_ink.make_tasks("L1", self.root, conf_engine=boom)

@@ -80,6 +80,8 @@ def make_tasks(lesson: str, root: str | None = None, conf_engine=None, only: set
                 if n in ink_pages:
                     for rect in ink.ink_regions(page):
                         clip = (rect + (-PAD, -PAD, PAD, PAD)) & page.rect
+                        if clip.is_empty or clip.width < 2 or clip.height < 2:
+                            continue  # nét nằm ngoài trang
                         png = page.get_pixmap(dpi=REGION_DPI, clip=clip).tobytes("png")
                         item = {"code": row["code"], "page": n, "sha": hashlib.sha256(png).hexdigest()}
                         (cached if item["sha"] in cache else regions).append((item, png))
