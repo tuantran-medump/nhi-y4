@@ -92,6 +92,14 @@ class TestSlice(Home):
         self.assertNotIn("NHI KHOA", text)
         self.assertIn("Câu năm.", text)
 
+    def test_garbled_running_header_removed(self):
+        self.setup_map([(1, 108, "L", "ok")])
+        common.write_text(common.page_file("G1", 1), "Câu một.\n1446 $ NHI KHOA - Tập 1\nCâu hai.\n\\O& © NHI KHOA - Tập 1\nBài9.Hentrẻem ® 3141\nCâu ba.\n")
+        text = b1_slice.slice_lesson("L")
+        self.assertNotIn("NHI KHOA", text)
+        self.assertNotIn("®", text)
+        self.assertIn("Câu ba.", text)
+
     def test_bottom_page_number_removed(self):
         self.setup_map([(1, 173, "L", "ok")])
         common.write_text(common.page_file("G1", 1), "Bài 13. ĐẶC ĐIỂM\nCâu.\n\n173\n")
