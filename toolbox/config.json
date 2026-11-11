@@ -2,5 +2,7 @@
   "source_root": "C:/Users/Admin/Downloads/OneDrive_3_11-10-2026/NHI_Y4_SAP_XEP",
   "output_root": "C:/Users/Admin/Downloads/OneDrive_3_11-10-2026/NHI_Y4_SAP_XEP/Bài học",
   "tesseract": "C:/Program Files/Tesseract-OCR/tesseract.exe",
+  "tessdata_dir": "C:/Users/Admin/AppData/Local/tessdata_best",
+  "ocr_lang": "vie",
   "edge": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
 }

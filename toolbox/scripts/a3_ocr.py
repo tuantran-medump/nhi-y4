@@ -18,12 +18,14 @@ DPI = 300
 
 
 def _run_tesseract(png: bytes, extra: list[str]) -> str:
-    exe = common.load_config()["tesseract"]
+    cfg = common.load_config()
+    exe = cfg["tesseract"]
+    model = ["--tessdata-dir", cfg["tessdata_dir"]] if cfg.get("tessdata_dir") else []
     with tempfile.TemporaryDirectory() as t:
         src = os.path.join(t, "p.png")
         with open(src, "wb") as f:
             f.write(png)
-        res = subprocess.run([exe, src, "stdout", "-l", "vie+eng", "--psm", "4", *extra],
+        res = subprocess.run([exe, src, "stdout", *model, "-l", cfg.get("ocr_lang", "vie+eng"), "--psm", "4", *extra],
                              capture_output=True, check=True)
     return res.stdout.decode("utf-8")
 

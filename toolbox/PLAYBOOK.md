@@ -122,7 +122,7 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 | Bước | Việc | Người làm |
 |---|---|---|
 | B1 | Cắt chữ của bài từ kho, dựng khung theo đề mục sách | Script |
-| B2 | Sửa lỗi OCR, chỉ phát các dòng cần sửa, đối chiếu ảnh ở chỗ nghi ngờ | Agent |
+| B2 | Áp từ điển lỗi, rồi model nhỏ soát **từng trang** bằng cách xem ảnh cạnh chữ OCR, chỉ phát các chỗ cần sửa (`b2_review.py`). Bắt buộc vì lỗi dấu thường vẫn ra từ có nghĩa, script không phát hiện được | Script và Agent |
 | B2b | Script tách câu và đánh số dòng. Agent chỉ phát bảng "dòng, cấp, ký hiệu, điểm tách". Script dựng danh sách rồi so khớp từng từ với bản B2 | Script và Agent |
 | B3 | Chốt danh sách nguồn tham khảo và phần viết tay cần đọc | Agent |
 | B4 | Đọc ảnh có chọn lọc: viết tay ưu tiên Notes, CBL; trên slide chỉ tối đa vài file mỗi bài | Agent đọc ảnh |
@@ -194,7 +194,7 @@ Mục không có nội dung vẫn giữ tiêu đề và ghi "Không có trong ng
 | A5 | [scripts/a5_extract.py](scripts/a5_extract.py) | Trích chữ vào kho |
 | A6 | [scripts/a6_assign.py](scripts/a6_assign.py) | Gán nguồn vào bài |
 | B1 | [scripts/b1_slice.py](scripts/b1_slice.py) | Cắt chữ của bài |
-| B2 | [scripts/b2_ocr_fix.py](scripts/b2_ocr_fix.py), [prompts/ocr_fix.md](templates/prompts/ocr_fix.md) | Từ điển lỗi OCR, bản vá |
+| B2 | [scripts/b2_ocr_fix.py](scripts/b2_ocr_fix.py), [scripts/b2_review.py](scripts/b2_review.py), [prompts/ocr_fix.md](templates/prompts/ocr_fix.md) | Từ điển lỗi OCR, soát từng trang, bản vá |
 | B2b | [scripts/b2b_layout.py](scripts/b2b_layout.py), [prompts/layout.md](templates/prompts/layout.md) | Xếp cấp dòng, so khớp từng từ |
 | B3 | [data/lesson_sources.csv](data/lesson_sources.csv) | Danh sách nguồn của bài (sinh ra sau A6) |
 | B4 | [scripts/b4_ink.py](scripts/b4_ink.py), [prompts/read_ink.md](templates/prompts/read_ink.md) | Đọc viết tay và trang scan |
@@ -204,6 +204,8 @@ Mục không có nội dung vẫn giữ tiêu đề và ghi "Không có trong ng
 | C3 | [data/drive_links.csv](data/drive_links.csv) | Điền link Drive rồi chạy lại `b7_render.py` |
 | Mọi bước | [scripts/progress.py](scripts/progress.py) | Sổ tiến độ |
 | Lô | [prompts/batch_brief.md](templates/prompts/batch_brief.md) | Brief giao harness |
+
+**OCR:** Tesseract dùng dữ liệu `tessdata_best`, ngôn ngữ `vie`, cấu hình ở `config.json`. Bản dữ liệu nhẹ cài mặc định đọc sai dấu nhiều hơn hẳn.
 
 **Dữ liệu và cấu hình:** [config.json](config.json) (đường dẫn), [data/lessons.csv](data/lessons.csv) (bài, hiệp hội), [data/topic_keywords.csv](data/topic_keywords.csv) (từ khóa), [data/ocr_dict.tsv](data/ocr_dict.tsv) (từ điển OCR), [templates/lesson.md](templates/lesson.md) và [templates/lesson.css](templates/lesson.css) (template).
 
