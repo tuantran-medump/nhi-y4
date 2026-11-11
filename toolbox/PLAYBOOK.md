@@ -159,7 +159,7 @@ Không giảm số file tổng hợp đưa vào mỗi bài (quyết định củ
 10. Thẻ bằng chứng: đọc xong một nguồn thì ghi thẻ ngắn (ý, mã, trang). File dùng cho nhiều bài chỉ nạp thẻ, không đọc lại.
 11. Sổ tiến độ, mỗi bài 1 phiên: trạng thái từng bài nằm trong file, bị ngắt thì làm tiếp đúng chỗ.
 12. Chia model theo việc: model nhỏ cho sửa OCR, xếp cấp dòng, đọc ảnh. Model mạnh chỉ cho mâu thuẫn và Phần B. Việc của model nhỏ luôn qua script kiểm tra.
-13. Harness cho lô: mỗi lô chuyên khoa giao worker, chỉ tin `result.json` và `diff.patch`. Bài mẫu làm trực tiếp, không qua harness.
+13. Lô chuyên khoa chạy bằng các model phụ trong phiên, như bài mẫu. Không dùng harness vì worker chạy trong worktree riêng, không thấy dữ liệu trong `kho/` (bị gitignore), và kết quả ở đó không vào `diff.patch` để kiểm chứng.
 
 ## 6. Tiêu chuẩn sản phẩm
 

@@ -241,6 +241,10 @@ class TestCheckBlocks(Home):
         self.setup_lesson("<<block:t1>>\n<2.0 ua\n<<endblock>>", "<<block:t1>>\n| ≤ 2,0 µg |\n<<endblock>>")
         self.assertEqual(self.rules(), [])
 
+    def test_figure_block_numbers_not_checked(self):
+        self.setup_lesson("<<block:p0088f>>\nrác 12 34\n<<endblock>>", "<<block:p0088f>>\n![Hình](fig/p0088f.png)\n<<endblock>>")
+        self.assertEqual(self.rules(), [])
+
     def test_block_number_lost_caught(self):
         self.setup_lesson("<<block:t1>>\nLiều 90 mg\n<<endblock>>", "<<block:t1>>\n| Liều | 50 mg |\n<<endblock>>")
         self.assertIn("block_number", self.rules())

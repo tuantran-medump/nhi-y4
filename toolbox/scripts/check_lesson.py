@@ -64,7 +64,7 @@ def check(lesson: str) -> list[dict]:
             add("body_changed", 0, d)
         for name, source in BLOCK.findall(fixed):
             lost = _numbers(source) - _numbers(filled.get(name, ""))
-            if name in filled and lost:
+            if name in filled and lost and not name.endswith("f"):  # khối tận cùng f là hình
                 add("block_number", 0, f"Khối {name} thiếu số so với sách: {sorted(lost)}")
     return issues
 
