@@ -10,7 +10,7 @@ from scripts import b7_render, progress
 
 class TestHtml(unittest.TestCase):
     def test_heading(self):
-        self.assertIn("<h2>1. ĐẠI CƯƠNG</h2>", b7_render.md_to_html("## 1. ĐẠI CƯƠNG", {}))
+        self.assertIn('<h2 id="h1">1. ĐẠI CƯƠNG</h2>', b7_render.md_to_html("## 1. ĐẠI CƯƠNG", {}))
 
     def test_nested_lists(self):
         html = b7_render.md_to_html("- a\n  + b\n    * c\n- d", {})
