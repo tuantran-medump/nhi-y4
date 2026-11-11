@@ -14,6 +14,7 @@ Mã bài: ________  Ngày kiểm: ________
 - [ ] Mọi ý truy được về file và trang trong `Tài liệu`, không có kiến thức ngoài (2.5)
 - [ ] Thân bài bài trong sách chỉ lấy từ Nhi Khoa Tập 1, 2 (2.1)
 - [ ] Bài ngoài sách có nhãn "Ngoài giáo trình" và viết từ slide giảng viên mới nhất (2.2)
+- [ ] Chỉ đối chiếu file cùng chuyên khoa và file tổng hợp (2.1)
 - [ ] Không dùng bản đã đánh dấu trùng (A2)
 - [ ] Không có file nào trong `Tài liệu` bị sửa, đổi tên, xóa (2.8)
 

@@ -14,6 +14,7 @@ import pymupdf  # noqa: E402
 from lib import common, ink  # noqa: E402
 
 FIELDS = ["lesson", "code", "pages", "score", "ink_pages"]
+GENERAL = {"", "Tổng hợp"}  # Textbook và Notes\\Tổng hợp dùng được cho mọi chuyên khoa
 NOT_LETTER_BEFORE = r"(?<![^\W\d_])"
 NOT_LETTER_AFTER = r"(?![^\W\d_])"
 
@@ -50,7 +51,7 @@ def assign(manifest: list[dict], keywords: list[dict], root: str) -> list[dict]:
         total = int(m["pages"] or 0) or max(texts, default=0)
         inks = None
         for lesson, hint, pat in compiled:
-            if hint and m["specialty"] and hint != m["specialty"]:
+            if hint and m["specialty"] not in GENERAL and hint != m["specialty"]:
                 continue
             hits = {p: len(pat.findall(t)) for p, t in texts.items()}
             hits = {p: n for p, n in hits.items() if n}

@@ -22,6 +22,8 @@ Cách dùng: agent đọc mục 1, 2 và 7 ở đầu mỗi phiên, các mục k
 | Tham khảo | Mọi file khác trong `Tài liệu`, kể cả các file khác trong `Textbook` | Chú thích trong ngoặc đơn và Phần B |
 | Trọng tài | Guideline của 1 hiệp hội cho mỗi bài (mục 2.4) | Chỉ để kết luận điểm mâu thuẫn |
 
+**Phạm vi đối chiếu:** mỗi bài chỉ đối chiếu với file cùng chuyên khoa (Hô hấp, Thận niệu, Huyết học, Tiêu hóa - Dinh dưỡng, Nhi khoa phát triển) và file tổng hợp (`Notes\\Tổng hợp`, các file khác trong `Textbook`). File chuyên khoa khác không dùng, dù có nhắc tới bệnh này. Trong phạm vi đó, chỉ lấy những trang có nhắc tới bài. Bài Nội tiết thuộc chuyên khoa Thận niệu theo chương của sách.
+
 ### 2.2 Thân bài
 
 - Thân bài theo đúng đề mục, thứ tự và câu chữ của bài trong sách. Không tóm tắt, không viết lại.
@@ -113,7 +115,7 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 | A3 | Kiểm thử Tesseract trên vài trang (cả trang có bảng), người dùng xem kết quả, rồi OCR hai tập và mọi trang scan của nguồn tham khảo (`a3_ocr.py scans`, chạy sau A1, A2, trước A6) | Chữ từng trang |
 | A4 | Lập bản đồ trang: số trang in ứng với trang PDF, ranh giới từng bài, **báo trang thiếu** | Bản đồ trang |
 | A5 | Trích chữ theo trang cho toàn bộ file có lớp chữ | Kho chữ |
-| A6 | Gán nguồn vào bài theo thư mục, tên file, rồi kiểm tra từ khóa trong kho chữ | Bảng nguồn theo bài |
+| A6 | Gán nguồn vào bài theo phạm vi đối chiếu ở mục 2.1: cùng chuyên khoa và file tổng hợp, lấy trang có từ khóa | Bảng nguồn theo bài |
 
 Đã biết ở A4: số trang in bị nhảy so với file scan (Tập 1 hụt khoảng 7 trang, Tập 2 hụt khoảng 1 trang, cả hai không có Bảng tra từ). Trang thiếu nằm trong bài nào thì ghi ở "Cần bổ sung" của bài đó.
 
