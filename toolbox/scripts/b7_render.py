@@ -114,6 +114,7 @@ def tidy_citations(text: str) -> str:
 def _inline(text: str, links: dict) -> str:
     out = htmlmod.escape(text, quote=False)
     out = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", out)
+    out = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)", r'<a href="\2">\1</a>', out)
 
     def note(m: re.Match) -> str:
         body = NOTE_AUTHOR.sub(r"<b>\1:</b>", m.group(1), count=1)
@@ -235,7 +236,8 @@ def _sources_table(text: str) -> str:
     links = _load_links()
     rows = ["| Mã | Nguồn | Link |", "|---|---|---|"]
     for c in codes:
-        rows.append(f"| {c} | {names.get(c, 'Chưa có trong danh mục')} | {links.get(c, 'Chưa gắn')} |")
+        link = f"[Mở]({links[c]})" if links.get(c) else "Chưa gắn"
+        rows.append(f"| {c} | {names.get(c, 'Chưa có trong danh mục')} | {link} |")
     return "\n".join(rows)
 
 

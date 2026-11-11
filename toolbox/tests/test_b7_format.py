@@ -101,6 +101,10 @@ class TestStyle(unittest.TestCase):
         html = r.md_to_html("- Kết luận theo PIDS/IDSA 2011: nội dung [E2:p1]", {})
         self.assertIn('<span class="note resolve"><b>Kết luận theo PIDS/IDSA 2011:</b>', html)
 
+    def test_markdown_link_rendered(self):
+        html = r.md_to_html("| Mã | Link |\n|---|---|\n| S1 | [Mở](https://drive.google.com/file/d/abc/view) |", {})
+        self.assertIn('<a href="https://drive.google.com/file/d/abc/view">Mở</a>', html)
+
     def test_book_parenthesis_not_styled(self):
         self.assertNotIn('class="note"', r.md_to_html("- Bệnh (cấp) nặng.", {}))
 

@@ -112,6 +112,14 @@ class TestAssemble(unittest.TestCase):
         self.assertGreaterEqual(md.count("Không có trong nguồn"), 3)
         self.assertNotIn("{{", md)
 
+    def test_sources_table_uses_short_link(self):
+        common.write_csv(common.data_path("manifest.csv"), [{"code": "S1", "path": "a.pdf"}], ["code", "path"])
+        common.write_csv(common.data_path("drive_links.csv"), [{"code": "S1", "url": "https://d/x"}], ["code", "url"])
+        common.write_text(common.kho_path("lessons", "G1-B08", "body.md"), "- a [S1:p1]\n")
+        common.write_json(common.kho_path("lessons", "G1-B08", "extra.json"), {"summary": "tt"})
+        md = b7_render.assemble({"lesson": "G1-B08", "book": "G1", "title": "T", "society": ""})
+        self.assertIn("| S1 | a.pdf | [Mở](https://d/x) |", md)
+
     def test_gaps_listed_in_missing_section(self):
         common.write_csv(common.data_path("gaps.csv"),
                          [{"book": "G1", "printed_page": "120", "lesson": "G1-B08", "note": ""}],

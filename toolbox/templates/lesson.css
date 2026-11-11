@@ -1,5 +1,5 @@
 @page { size: A4; margin: 18mm 17mm 20mm 17mm; }
-body { font-family: "Segoe UI", Arial, sans-serif; font-size: 11pt; line-height: 1.5; color: #1c2430; }
+body { font-family: Tahoma, Verdana, sans-serif; font-size: 10.5pt; line-height: 1.55; color: #1c2430; }
 h1 { font-size: 19pt; color: #0f3d73; border-bottom: 2px solid #0f3d73; padding-bottom: 4px; margin: 0 0 12px; page-break-after: avoid; }
 h1 ~ h1 { page-break-before: always; }
 h2 { font-size: 14.5pt; color: #0f3d73; margin: 18px 0 8px; page-break-after: avoid; }
