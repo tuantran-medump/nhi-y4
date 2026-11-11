@@ -35,7 +35,7 @@ Mã bài: ________  Ngày kiểm: ________
 - [ ] Số trang trong mã nguồn là số trang của file PDF, kể cả giáo trình (2.6)
 - [ ] Mã nguồn ở cuối câu, nhiều trang cùng nguồn đã gộp (2.6)
 - [ ] Mọi chỉnh sửa từ nguồn khác nằm trong ngoặc đơn ngay sau ý, có mã nguồn (2.3)
-- [ ] Mâu thuẫn có đủ: điểm lệch, từng nguồn nói gì, kết luận của hiệp hội trọng tài (2.4)
+- [ ] Mâu thuẫn có đủ: điểm lệch, từng nguồn nói gì, kết luận của hiệp hội ưu tiên, hoặc hiệp hội uy tín khác nếu không tìm được, có ghi tên (2.4)
 - [ ] Thân bài vẫn giữ theo sách ở điểm mâu thuẫn (2.4)
 - [ ] Nguồn ngoài chỉ dùng cho điểm mâu thuẫn, có mã `E` trong danh mục (2.4)
 - [ ] Điểm chưa có kết luận đã vào danh sách chờ người dùng quyết (2.4)
