@@ -1,7 +1,7 @@
 """B4. Chuẩn bị ảnh cho agent đọc viết tay và trang scan, rồi gom kết quả vào kho.
 
 Chạy:
-  python toolbox/scripts/b4_ink.py G1-B08 tasks    (tạo kho/ink/<lesson>/tasks.json và ảnh ghép)
+  python toolbox/scripts/b4_ink.py G1-B08 tasks [S059,N029]   (tạo kho/ink/<lesson>/tasks.json và ảnh ghép, có thể chỉ định mã nguồn)
   python toolbox/scripts/b4_ink.py G1-B08 merge    (gom results/<id>.json vào kho)
 Mỗi vùng chỉ đọc một lần: kết quả lưu trong data/ink_cache.json theo hash ảnh.
 """
@@ -47,7 +47,11 @@ def _sheet(pngs: list[bytes], out: str) -> None:
     d.close()
 
 
-def make_tasks(lesson: str, root: str | None = None, conf_engine=None) -> list[dict]:
+def _select(rows: list[dict], lesson: str, only: set[str] | None) -> list[dict]:
+    return [r for r in rows if r["lesson"] == lesson and (only is None or r["code"] in only)]
+
+
+def make_tasks(lesson: str, root: str | None = None, conf_engine=None, only: set[str] | None = None) -> list[dict]:
     if root is None:
         root = os.path.join(common.load_config()["source_root"], "Tài liệu")
     if conf_engine is None:
@@ -59,9 +63,7 @@ def make_tasks(lesson: str, root: str | None = None, conf_engine=None) -> list[d
     manifest = {r["code"]: r for r in common.read_csv(common.data_path("manifest.csv"))}
     cache = _cache()
     regions, pages, cached = [], [], []
-    for row in common.read_csv(common.data_path("lesson_sources.csv")):
-        if row["lesson"] != lesson:
-            continue
+    for row in _select(common.read_csv(common.data_path("lesson_sources.csv")), lesson, only):
         m = manifest[row["code"]]
         if m["kind"] == "needs_manual":
             continue
@@ -146,7 +148,8 @@ def merge(lesson: str) -> dict:
 def main() -> None:
     lesson, cmd = sys.argv[1], sys.argv[2]
     if cmd == "tasks":
-        tasks = make_tasks(lesson)
+        only = set(sys.argv[3].split(",")) if len(sys.argv) > 3 else None
+        tasks = make_tasks(lesson, only=only)
         print(f"{len(tasks)} ảnh cần đọc, {sum(len(t['items']) for t in tasks)} vùng")
     else:
         print(merge(lesson))
