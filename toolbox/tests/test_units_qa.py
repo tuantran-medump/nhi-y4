@@ -15,6 +15,12 @@ class TestUnits(unittest.TestCase):
     def test_uppercase_line_stands_alone(self):
         self.assertEqual(split_units("VIÊM PHỔI\nPGS.TS.BS. Nguyễn A"), ["VIÊM PHỔI", "PGS.TS.BS. Nguyễn A"])
 
+    def test_answer_options_stand_alone(self):
+        self.assertEqual(split_units("Chọn câu đúng:\nA. Một\nB. Hai"), ["Chọn câu đúng:", "A. Một", "B. Hai"])
+
+    def test_numbered_line_starts_new_unit(self):
+        self.assertEqual(split_units("D. Bốn\n2. Câu hỏi hai"), ["D. Bốn", "2. Câu hỏi hai"])
+
     def test_sentence_after_number_value_still_splits(self):
         self.assertEqual(split_units("Liều là 5. Sau đó giảm."), ["Liều là 5.", "Sau đó giảm."])
 

@@ -23,6 +23,7 @@ BULLET = re.compile(r"^\s*[-+*•–]\s+")
 BULLET_NOT_SIGN = re.compile(r"^\s*[-+*•–]\s+(?!\d)")  # "- 3 SD" có thể là dấu âm, không được bỏ
 HEAD = re.compile(r"^(\d+(?:\.\d+)*)\.\s+\S")
 NUMBER = r"(?:\d+\.|[IVXLC]+\.)"
+LIST_START = re.compile(r"^(?:\d{1,2}[.,]|[A-E]\.)\s+\S")
 DEFAULT_MARKER = {1: "-", 2: "+", 3: "*"}
 NOTE = re.compile(r"\s*\([^()]*\[[SCNRE]\d+:p[^\]]*\][^()]*\)")
 CITE = re.compile(r"\s*\[[GSCNRE]\d*:p[^\]]*\]")
@@ -78,7 +79,7 @@ def split_units(text: str) -> list[str]:
             flush()
             units.append(line)
         else:
-            if BULLET.match(line):
+            if BULLET.match(line) or LIST_START.match(line):
                 flush()
             par.append(line)
     flush()
