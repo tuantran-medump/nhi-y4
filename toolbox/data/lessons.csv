@@ -32,3 +32,18 @@ G2-B14,G2,Thiếu máu thiếu sắt,185,WHO,Huyết học
 G2-B15,G2,Bệnh thalassemia,203,TIF,Huyết học
 G2-B16,G2,Bệnh hemophilia,223,WFH,Huyết học
 G2-B17,G2,Bệnh giảm tiểu cầu,239,ASH,Huyết học
+X-01,,Ho - Khó thở,,,Hô hấp
+X-02,,Khò khè,,,Hô hấp
+X-03,,Khí dung,,,Hô hấp
+X-04,,X-quang ngực,,,Hô hấp
+X-05,,Suy hô hấp - Oxy,,,Hô hấp
+X-06,,Thuốc hô hấp,,,Hô hấp
+X-07,,Khám hô hấp,,,Hô hấp
+X-08,,Phù,,KDIGO,Thận - Nội tiết
+X-09,,Đọc xét nghiệm thận,,,Thận - Nội tiết
+X-10,,Tiếp cận thiếu máu,,,Huyết học
+X-11,,Tiếp cận xuất huyết,,,Huyết học
+X-12,,Suy tủy,,,Huyết học
+X-13,,Hạch lách to,,,Huyết học
+X-14,,Xét nghiệm huyết học,,,Huyết học
+X-15,,Đau bụng - Nôn,,,Tiêu hóa - Dinh dưỡng

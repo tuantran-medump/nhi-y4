@@ -1,0 +1,41 @@
+lesson,keywords,folder_hint
+G1-B01,thời kỳ tuổi trẻ,Nhi khoa phát triển
+G1-B02,thể chất;tăng trưởng,Nhi khoa phát triển
+G1-B03,tâm vận;tâm thần - vận động,Nhi khoa phát triển
+G1-B04,tiêm chủng;tiem chung;VNVC;vaccine,Nhi khoa phát triển
+G1-B06,viêm hô hấp trên;viêm HH trên;viêm họng;viêm mũi;viêm tai giữa,Hô hấp
+G1-B07,viêm tiểu phế quản;VTPQ;viêm TPQ,Hô hấp
+G1-B08,viêm phổi,Hô hấp
+G1-B09,hen,Hô hấp
+G1-B11,nhiễm trùng tiểu;NTT;NHIE_CC,Thận niệu
+G1-B12,viêm cầu thận;VCTC,Thận niệu
+G1-B13,thận hư;HCTH;than_hu,Thận niệu
+G1-B14,Henoch;viêm mạch máu IgA,Thận niệu
+G2-B02,nhu cầu dinh dưỡng,Tiêu hóa - Dinh dưỡng
+G2-B03,nuôi trẻ dưới 6;nuôi con dưới 6;sữa mẹ,Tiêu hóa - Dinh dưỡng
+G2-B04,ăn dặm;dứt sữa,Tiêu hóa - Dinh dưỡng
+G2-B05,vấn đề nuôi dưỡng;vấn đề dinh dưỡng;van de dinh duong,Tiêu hóa - Dinh dưỡng
+G2-B09,tiêu chảy;TCC;diarrhea;mất nước,Tiêu hóa - Dinh dưỡng
+G2-B10,suy dinh dưỡng;SDD;suy DD,Tiêu hóa - Dinh dưỡng
+G2-B11,điều trị suy dinh dưỡng,Tiêu hóa - Dinh dưỡng
+G2-B12,béo phì,Tiêu hóa - Dinh dưỡng
+G2-B13,đặc điểm về máu;đặc điểm hệ máu,Huyết học
+G2-B14,thiếu máu thiếu sắt;TMTS,Huyết học
+G2-B15,thalassemia;điện di,Huyết học
+G2-B16,hemophilia;hemophillia,Huyết học
+G2-B17,giảm tiểu cầu;ITP;XHGTCMD,Huyết học
+X-01,ho;khó thở,Hô hấp
+X-02,khò khè,Hô hấp
+X-03,khí dung;PKD,Hô hấp
+X-04,xquang;x-quang;XQ,Hô hấp
+X-05,suy hô hấp;SHH;oxy,Hô hấp
+X-06,thuốc dãn;thuốc kháng viêm;kháng sinh;KSM,Hô hấp
+X-07,khám lâm sàng,Hô hấp
+X-08,phù;_C3_99,Thận niệu
+X-09,đọc xét nghiệm,Thận niệu
+X-10,tiếp cận thiếu máu;thiếu máu,Huyết học
+X-11,tiếp cận xuất huyết;xuất huyết,Huyết học
+X-12,suy tuỷ;suy tủy,Huyết học
+X-13,hạch lách,Huyết học
+X-14,xét nghiệm;CLS;huyết đồ;điện di,Huyết học
+X-15,đau bụng;nôn,Tiêu hóa - Dinh dưỡng
