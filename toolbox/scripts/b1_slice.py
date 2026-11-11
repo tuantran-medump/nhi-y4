@@ -17,7 +17,8 @@ def lesson_info(lesson: str) -> dict:
 
 def strip_furniture(text: str) -> str:
     """Bỏ tiêu đề chạy, số trang, dấu CamScanner. Đây không phải nội dung sách."""
-    lines = [ln for ln in text.splitlines() if not re.search(r"CamScanner|quét bằng", ln, re.I)]
+    lines = [ln for ln in text.splitlines() if not re.search(r"CamScanner|quét bằng", ln, re.I)
+             and not re.match(r"^\s*\d{1,3}\D{0,6}NHI\s*KHOA\s*-\s*T", ln, re.I)]
     seen = 0
     for i, ln in enumerate(lines):
         if not ln.strip():

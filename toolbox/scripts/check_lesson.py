@@ -19,6 +19,10 @@ OPEN = re.compile(r"^<<block:([\w-]+)>>\s*$", re.M)
 NUM = re.compile(r"\d+(?:[.,]\d+)?")
 
 
+def _numbers(text: str) -> set[str]:
+    return {n.replace(",", ".") for n in NUM.findall(text)}
+
+
 def check(lesson: str) -> list[dict]:
     info = next(r for r in common.read_csv(common.data_path("lessons.csv")) if r["lesson"] == lesson)
     body = common.read_text(common.kho_path("lessons", lesson, "body.md"))
@@ -59,7 +63,7 @@ def check(lesson: str) -> list[dict]:
         for d in verify_words(fixed, body):
             add("body_changed", 0, d)
         for name, source in BLOCK.findall(fixed):
-            lost = set(NUM.findall(source)) - set(NUM.findall(filled.get(name, "")))
+            lost = _numbers(source) - _numbers(filled.get(name, ""))
             if name in filled and lost:
                 add("block_number", 0, f"Khối {name} thiếu số so với sách: {sorted(lost)}")
     return issues

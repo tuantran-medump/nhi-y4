@@ -75,6 +75,13 @@ class TestSlice(Home):
         self.assertNotIn("CamScanner", text)
         self.assertNotIn("♦", text)
 
+    def test_running_header_lower_on_page_removed(self):
+        self.setup_map([(1, 130, "L", "ok")])
+        common.write_text(common.page_file("G1", 1), "Câu một.\nCâu hai.\nCâu ba.\nCâu bốn.\n130 ®$ NHI KHOA - Tập í\nCâu năm.\n")
+        text = b1_slice.slice_lesson("L")
+        self.assertNotIn("NHI KHOA", text)
+        self.assertIn("Câu năm.", text)
+
     def test_bottom_page_number_removed(self):
         self.setup_map([(1, 173, "L", "ok")])
         common.write_text(common.page_file("G1", 1), "Bài 13. ĐẶC ĐIỂM\nCâu.\n\n173\n")
@@ -218,6 +225,10 @@ class TestCheckBlocks(Home):
 
     def test_table_block_passes(self):
         self.setup_lesson("<<block:t1>>\nLiều 90 mg\n<<endblock>>", "<<block:t1>>\n| Liều | 90 mg |\n<<endblock>>")
+        self.assertEqual(self.rules(), [])
+
+    def test_decimal_separator_ignored_in_block(self):
+        self.setup_lesson("<<block:t1>>\n<2.0 ua\n<<endblock>>", "<<block:t1>>\n| ≤ 2,0 µg |\n<<endblock>>")
         self.assertEqual(self.rules(), [])
 
     def test_block_number_lost_caught(self):
