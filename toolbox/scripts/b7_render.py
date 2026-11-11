@@ -24,6 +24,10 @@ MARK_CLASS = {"-": "m-dash", "+": "m-plus", "*": "m-star"}
 GLYPH = {"-": "•", "+": "◦", "*": "▪"}
 NOTE_SPAN = re.compile(r"\(([^()]*\[[SCNRE]\d+:p[^\]]+\][^()]*)\)")
 CITE_RUN = re.compile(r"(?:\s*\[[GSCNRE]\d*:p[^\]]+\]){2,}")
+NOTE_AUTHOR = re.compile(r"^((?:Giảng viên|Ghi chú|Tài liệu|Slide|Bài giảng|BS|ThS|TS|PGS|GS|Cô|Thầy|Anh|Chị"
+                         r"|WHO|IMCI|GINA|AAP|KDIGO|UpToDate|Guideline|Đồng thuận|Bộ Y tế)\b[^:\[]{0,40}"
+                         r"|[^\s:\[]+ \d{4}):")
+CONFLICT_LABEL = re.compile(r"^(Sách|Nguồn|Kết luận[^:\[]{0,80}):\s*")
 CITE_ANY = re.compile(r"\s*\[[GSCNRE]\d*:p[^\]]+\]")
 BARE_CAPTION = re.compile(r"(?:Bảng|Hình)\s*\d+(?:\.\d+)?\.?(?:\s*\[[GSCNRE]\d*:p[^\]]+\])*")
 CAPTION = re.compile(r"^(?:Bảng|Hình)\s*\d+(?:\.\d+)?\b")
@@ -111,7 +115,11 @@ def _inline(text: str, links: dict) -> str:
     out = htmlmod.escape(text, quote=False)
     out = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", out)
 
-    out = NOTE_SPAN.sub(r'<span class="note">(\1)</span>', out)
+    def note(m: re.Match) -> str:
+        body = NOTE_AUTHOR.sub(r"<b>\1:</b>", m.group(1), count=1)
+        return f'<span class="note">({body})</span>'
+
+    out = NOTE_SPAN.sub(note, out)
 
     def cite(m: re.Match) -> str:
         code = m.group(1)
@@ -122,6 +130,15 @@ def _inline(text: str, links: dict) -> str:
         return f'<a class="cite-link" href="{htmlmod.escape(url)}">{span}</a>' if url else span
 
     return CITE.sub(cite, out)
+
+
+def _item(text: str, links: dict) -> str:
+    """Nội dung một dòng danh sách. Nhãn trong mục mâu thuẫn in đậm, dòng kết luận có nền kem."""
+    m = CONFLICT_LABEL.match(text)
+    if not m:
+        return _inline(text, links)
+    html = f"<b>{htmlmod.escape(m.group(1), quote=False)}:</b> {_inline(text[m.end():], links)}"
+    return f'<span class="note resolve">{html}</span>' if m.group(1).startswith("Kết luận") else html
 
 
 def _table(rows: list[str], links: dict) -> str:
@@ -170,7 +187,7 @@ def md_to_html(md: str, links: dict) -> str:
                 close_to(level)
                 out.append("</li>")
             cls = MARK_CLASS.get(marker, "m-num")
-            out.append(f'<li class="{cls}" data-m="{GLYPH.get(marker, marker)}">{_inline(text, links)}')
+            out.append(f'<li class="{cls}" data-m="{GLYPH.get(marker, marker)}">{_item(text, links)}')
             continue
         close_to(0)
         if not line.strip():

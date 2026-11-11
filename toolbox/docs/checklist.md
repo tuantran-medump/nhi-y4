@@ -38,7 +38,7 @@ Mã bài: ________  Ngày kiểm: ________
 - [ ] Mâu thuẫn có đủ: điểm lệch, từng nguồn nói gì, kết luận của hiệp hội ưu tiên, hoặc hiệp hội uy tín khác nếu không tìm được, có ghi tên (2.4)
 - [ ] Thân bài vẫn giữ theo sách ở điểm mâu thuẫn (2.4)
 - [ ] Nguồn ngoài chỉ dùng cho điểm mâu thuẫn, có mã `E` trong danh mục (2.4)
-- [ ] Điểm chưa có kết luận đã vào danh sách chờ người dùng quyết (2.4)
+- [ ] Điểm không có nguồn giải quyết ghi "Chưa thấy có nguồn hiệp hội/guideline xác nhận" (2.4)
 
 ## 5. Hình và bảng
 

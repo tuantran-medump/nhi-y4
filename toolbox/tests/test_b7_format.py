@@ -75,6 +75,32 @@ class TestStyle(unittest.TestCase):
     def test_note_styled(self):
         self.assertIn('<span class="note">', r.md_to_html("- Câu (Slide: 3 ngày [S1:p4]).", {}))
 
+    def test_note_author_bold(self):
+        html = r.md_to_html("- Câu (Giảng viên: 3 ngày [S1:p4]).", {})
+        self.assertIn('<span class="note">(<b>Giảng viên:</b> 3 ngày', html)
+
+    def test_note_named_doctor_bold(self):
+        self.assertIn("<b>Slide BS Nguyễn Thanh, 2017:</b>",
+                      r.md_to_html("- Câu (Slide BS Nguyễn Thanh, 2017: x [S1:p4]).", {}))
+
+    def test_note_author_with_year_bold(self):
+        self.assertIn("<b>Simel 2009:</b>", r.md_to_html("- Câu (Simel 2009: x [S1:p4]).", {}))
+
+    def test_note_content_colon_not_bold(self):
+        self.assertNotIn("<b>", r.md_to_html("- Câu (Phân biệt viêm phổi không sốt: x [S1:p4]).", {}))
+
+    def test_note_without_author_not_bold(self):
+        self.assertNotIn("<b>", r.md_to_html("- Câu (nội dung thêm [S1:p4]).", {}))
+
+    def test_conflict_labels_bold(self):
+        html = r.md_to_html("- Sách: a [G1:p1]\n- Nguồn: b [S1:p1]", {})
+        self.assertIn("<b>Sách:</b>", html)
+        self.assertIn("<b>Nguồn:</b>", html)
+
+    def test_conflict_ruling_bold_on_cream(self):
+        html = r.md_to_html("- Kết luận theo PIDS/IDSA 2011: nội dung [E2:p1]", {})
+        self.assertIn('<span class="note resolve"><b>Kết luận theo PIDS/IDSA 2011:</b>', html)
+
     def test_book_parenthesis_not_styled(self):
         self.assertNotIn('class="note"', r.md_to_html("- Bệnh (cấp) nặng.", {}))
 

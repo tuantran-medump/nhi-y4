@@ -45,6 +45,8 @@ Ví dụ: `Điều trị 5 ngày [G1:p128] (Slide BS. A 2024: rút còn 3 ngày 
 
 ### 2.4 Mâu thuẫn
 
+Trình bày: nhãn `Sách`, `Nguồn`, `Kết luận theo <tên guideline>` in đậm, dòng kết luận có nền kem. Trong chú thích ngoặc đơn, tên người tạo nguồn (Giảng viên, BS Thanh, Ghi chú lớp...) in đậm, chú thích có nền kem.
+
 Mâu thuẫn là khi hai nguồn đưa ra chỉ định, liều, ngưỡng hoặc tiêu chuẩn không thể cùng đúng.
 
 1. Thân bài giữ theo sách, có chú thích ngoặc đơn như mục 2.3.
@@ -64,7 +66,7 @@ Mâu thuẫn là khi hai nguồn đưa ra chỉ định, liều, ngưỡng hoặ
 | Giảm tiểu cầu | ASH |
 
 4. Ưu tiên guideline có sẵn trong thư mục. Nếu không có, được tra bản chính thức bên ngoài, **chỉ cho điểm mâu thuẫn đó**, ghi mã `E` và lưu vào danh mục nguồn.
-5. Bài không có hiệp hội mặc định hoặc hiệp hội không đề cập điểm lệch: đưa vào danh sách chờ người dùng quyết.
+5. Bài không có hiệp hội mặc định hoặc hiệp hội không đề cập điểm lệch, và cũng không tìm được hiệp hội uy tín khác: ghi "Chưa thấy có nguồn hiệp hội/guideline xác nhận".
 
 ### 2.5 Không thêm kiến thức ngoài
 
