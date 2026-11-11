@@ -1,6 +1,6 @@
 # Playbook: Gom tài liệu Nhi Y4 thành bài học chuẩn
 
-Trạng thái: Bước 1 (playbook) đã duyệt 2026-11-11. Bước 2 (toolbox) đang làm. Bước 3 (checklist) chưa làm.
+Trạng thái: Bước 1 (playbook) đã duyệt 2026-11-11. Bước 2 (toolbox) và Bước 3 (checklist) đã dựng, chờ người dùng xem. Chưa soạn bài nào.
 
 Cách dùng: agent đọc mục 1, 2 và 7 ở đầu mỗi phiên, các mục khác chỉ đọc khi tới bước đó.
 
@@ -71,7 +71,7 @@ Mọi ý phải truy được về nguồn. Ngoại lệ duy nhất là mục 2.
 
 - Mã ngắn cuối ý: `G1`, `G2` (giáo trình), `S` (slide), `C` (CBL), `N` (notes), `R` (tham khảo khác), `E` (guideline ngoài).
 - Bắt buộc gắn ở số liệu, liều, tiêu chuẩn, chỉ định và ý quan trọng.
-- Với giáo trình, `p` là **số trang in**, không phải số trang của file PDF.
+- Với mọi nguồn, kể cả giáo trình, `p` là **số trang của file PDF**, không phải số trang in. Số trang in chỉ dùng để xác định ranh giới bài và báo trang thiếu.
 - Mã là link bấm được tới Google Drive. Link được gắn bằng script từ bảng mã nguồn sau khi người dùng upload. Link Drive thường chỉ mở đúng file, nên mã luôn giữ số trang.
 
 ### 2.7 Hình và bảng
@@ -207,3 +207,9 @@ Mục không có nội dung vẫn giữ tiêu đề và ghi "Không có trong ng
 **Dữ liệu và cấu hình:** [config.json](config.json) (đường dẫn), [data/lessons.csv](data/lessons.csv) (bài, hiệp hội), [data/topic_keywords.csv](data/topic_keywords.csv) (từ khóa), [data/ocr_dict.tsv](data/ocr_dict.tsv) (từ điển OCR), [templates/lesson.md](templates/lesson.md) và [templates/lesson.css](templates/lesson.css) (template).
 
 **Kiểm thử toolbox:** `python -m unittest discover -s toolbox/tests`. Kế hoạch dựng: [docs/plan-toolbox.md](docs/plan-toolbox.md).
+
+## 9. Checklist sản phẩm hoàn thiện
+
+Chạy toàn bộ checklist cho mỗi bài trước khi cho người dùng xem. Mục nào không đạt thì sửa, hoặc ghi rõ lý do trong báo cáo. Bản đầy đủ để đánh dấu từng bài: [docs/checklist.md](docs/checklist.md).
+
+Tóm lược các nhóm: tự động (`check_lesson.py` trả về rỗng), nguồn, thân bài, chú thích và mâu thuẫn, hình và bảng, Phần B, file PDF, báo cáo.

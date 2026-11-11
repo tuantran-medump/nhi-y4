@@ -35,8 +35,9 @@ class TestSlice(Home):
 
     def test_page_markers(self):
         text = b1_slice.slice_lesson("G1-B08")
-        self.assertIn("<<p118>>", text)
-        self.assertIn("<<pdf12?>>", text)
+        self.assertIn("<<p10>>", text)
+        self.assertIn("<<p12>>", text)
+        self.assertNotIn("<<p118>>", text)
 
     def test_written_to_kho(self):
         b1_slice.slice_lesson("G1-B08")

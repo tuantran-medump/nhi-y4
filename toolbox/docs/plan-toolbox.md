@@ -16,7 +16,7 @@
 - Tên file so sánh sau khi chuẩn hóa Unicode NFC. Mọi file text đọc và ghi UTF-8.
 - Đường dẫn gốc lấy từ `toolbox/config.json`, khóa `source_root`, `output_root`.
 - Mã nguồn: `G1`, `G2`, `S###`, `C###`, `N###`, `R###`, `E###`.
-- Với giáo trình, số trang trong trích dẫn là số trang in.
+- Số trang trong trích dẫn là số trang của file PDF, kể cả giáo trình.
 - Test chạy bằng: `python -m unittest discover -s toolbox/tests`.
 
 ## Review Focus

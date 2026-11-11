@@ -19,7 +19,7 @@ def slice_lesson(lesson: str) -> str:
     rows = [r for r in common.read_csv(common.data_path(f"pagemap_{book}.csv")) if r["lesson"] == lesson]
     parts = []
     for r in sorted(rows, key=lambda x: int(x["pdf_page"])):
-        marker = f"<<p{r['printed_page']}>>" if r["confidence"] == "ok" else f"<<pdf{r['pdf_page']}?>>"
+        marker = f"<<p{r['pdf_page']}>>"  # trích dẫn dùng số trang của file PDF
         parts.append(marker + "\n" + common.read_text(common.page_file(book, int(r["pdf_page"]))).strip())
     text = "\n".join(parts) + "\n"
     common.write_text(common.kho_path("lessons", lesson, "raw.txt"), text)
