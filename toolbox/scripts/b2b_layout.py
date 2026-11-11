@@ -16,14 +16,17 @@ from difflib import SequenceMatcher
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from lib import common  # noqa: E402
 
-PAGE = re.compile(r"^<<.*>>$")
+PAGE = re.compile(r"^<<p\d+>>$")
+BLOCK_OPEN = re.compile(r"^<<block:[\w-]+>>$")
+BLOCK_END = "<<endblock>>"
 BULLET = re.compile(r"^\s*[-+*•–]\s+")
+BULLET_NOT_SIGN = re.compile(r"^\s*[-+*•–]\s+(?!\d)")  # "- 3 SD" có thể là dấu âm, không được bỏ
 HEAD = re.compile(r"^(\d+(?:\.\d+)*)\.\s+\S")
 NUMBER = r"(?:\d+\.|[IVXLC]+\.)"
 DEFAULT_MARKER = {1: "-", 2: "+", 3: "*"}
 NOTE = re.compile(r"\s*\([^()]*\[[SCNRE]\d+:p[^\]]*\][^()]*\)")
 CITE = re.compile(r"\s*\[[GSCNRE]\d*:p[^\]]*\]")
-END_COMMA = re.compile(r"[,;](?=\s|$)")
+END_COMMA = re.compile(r"(?<!\d)[,;](?=\s|$)|[,;](?=\s+\D|$)")  # "2, 5" có thể là số thập phân
 
 
 def _is_heading(line: str) -> bool:
@@ -53,9 +56,16 @@ def split_units(text: str) -> list[str]:
             units.extend(_sentences(" ".join(par)))
             par.clear()
 
+    in_block = False
     for raw in text.split("\n"):
         line = raw.strip()
-        if not line:
+        if in_block:
+            in_block = line != BLOCK_END
+        elif BLOCK_OPEN.match(line):
+            flush()
+            units.append(line)
+            in_block = True
+        elif not line:
             flush()
         elif PAGE.match(line) or _is_heading(line):
             flush()
@@ -69,7 +79,7 @@ def split_units(text: str) -> list[str]:
 
 
 def _line(text: str, level: int, marker: str) -> str:
-    text = BULLET.sub("", text, count=1)
+    text = BULLET_NOT_SIGN.sub("", text, count=1)
     if text.startswith(marker + " "):
         text = text[len(marker) + 1:]
     return "  " * (level - 1) + marker + " " + text
@@ -80,7 +90,7 @@ def apply_layout(units: list[str], table: list[dict]) -> str:
     out: list[str] = []
     for i, unit in enumerate(units, 1):
         t = by_line.get(i, {})
-        if PAGE.match(unit):
+        if PAGE.match(unit) or BLOCK_OPEN.match(unit):
             out.append(unit)
         elif t.get("join_prev"):
             idx = max(k for k, v in enumerate(out) if not PAGE.match(v))
@@ -104,37 +114,70 @@ def apply_layout(units: list[str], table: list[dict]) -> str:
     return "\n".join(out)
 
 
-def _strip_fixed(line: str) -> str:
-    line = BULLET.sub("", line, count=1)
-    return re.sub(rf"^\s*{NUMBER}\s+", "", line, count=1)
-
-
-def _strip_body(line: str) -> str:
-    if re.match(r"^\s*#+\s", line):
-        return re.sub(r"^\s*#+\s+(?:\d+\.\s+)?", "", line, count=1)
-    if BULLET.match(line):
-        return re.sub(rf"^\s*{NUMBER}\s+", "", BULLET.sub("", line, count=1), count=1)
-    return re.sub(rf"^\s*{NUMBER}\s+", "", line, count=1)
-
-
-def _tokens(text: str, strip) -> list[str]:
-    words: list[str] = []
+def _content_lines(text: str) -> list[str]:
+    """Các dòng cần so khớp: bỏ dấu trang và phần trong khối bảng, hình."""
+    lines, in_block = [], False
     for line in text.split("\n"):
-        if PAGE.match(line.strip()):
-            continue
-        words += END_COMMA.sub(" ", strip(line)).split()
+        stripped = line.strip()
+        if in_block:
+            in_block = stripped != BLOCK_END
+        elif BLOCK_OPEN.match(stripped):
+            in_block = True
+        elif not PAGE.match(stripped):
+            lines.append(line)
+    return lines
+
+
+def _fixed_tokens(text: str) -> list[str]:
+    words: list[str] = []
+    for line in _content_lines(text):
+        words += END_COMMA.sub(" ", BULLET_NOT_SIGN.sub("", line, count=1)).split()
+    return words
+
+
+def _body_tokens(text: str, reference: list[str]) -> list[str]:
+    """Bỏ ký hiệu đầu dòng của bài. Số đầu dòng chỉ được bỏ nếu sách không có số đó ở vị trí này."""
+    words: list[str] = []
+    for line in _content_lines(text):
+        heading = re.match(r"^\s*#+\s+", line)
+        added_number = None
+        if heading:
+            line = line[heading.end():]
+        elif BULLET.match(line):
+            line = BULLET.sub("", line, count=1)
+        else:
+            m = re.match(rf"^\s*({NUMBER})\s+", line)
+            if m:
+                added_number = m.group(1)
+        tokens = END_COMMA.sub(" ", line).split()
+        if added_number and reference[len(words):len(words) + 1] != [added_number]:
+            tokens = tokens[1:]
+        words += tokens
     return words
 
 
 def verify_words(fixed: str, body: str) -> list[str]:
     """Trả về danh sách khác biệt. Rỗng nghĩa là câu chữ của sách không đổi."""
     clean = CITE.sub("", NOTE.sub("", body))
-    a, b = _tokens(fixed, _strip_fixed), _tokens(clean, _strip_body)
+    a = _fixed_tokens(fixed)
+    b = _body_tokens(clean, a)
     if a == b:
         return []
     ops = SequenceMatcher(None, a, b, autojunk=False).get_opcodes()
     return [f"{tag}: sách={' '.join(a[i1:i2])!r} bài={' '.join(b[j1:j2])!r} (từ {i1})"
             for tag, i1, i2, j1, j2 in ops if tag != "equal"]
+
+
+def _fill_blocks(lesson: str, body: str) -> str:
+    """Thay dòng <<block:id>> bằng bảng hoặc hình đã gõ ở kho/lessons/<bài>/blocks/<id>.md."""
+    out = []
+    for line in body.split("\n"):
+        out.append(line)
+        if BLOCK_OPEN.match(line):
+            path = common.kho_path("lessons", lesson, "blocks", line[8:-2] + ".md")
+            if os.path.exists(path):
+                out += [common.read_text(path).strip(), BLOCK_END]
+    return "\n".join(out)
 
 
 def main() -> None:
@@ -146,7 +189,7 @@ def main() -> None:
             print(f"{i}\t{u}")
         return
     with open(sys.argv[3], encoding="utf-8") as f:
-        body = apply_layout(units, json.load(f))
+        body = _fill_blocks(lesson, apply_layout(units, json.load(f)))
     diffs = verify_words(fixed, body)
     if diffs:
         print("\n".join(diffs))

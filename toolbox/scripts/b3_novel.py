@@ -1,15 +1,13 @@
 """Lọc câu mới: bỏ câu nguồn tham khảo đã có trong sách, giữ phần khác biệt.
 
-Câu chỉ bị bỏ khi gần giống câu sách VÀ số, đơn vị, từ phủ định, từ chỉ hướng trùng hoàn toàn,
-vì câu khác sách ở các điểm đó chính là chỗ cần ghi chú.
+Câu chỉ bị bỏ khi giống hệt câu sách từng từ. Câu gần giống được giữ và gắn changed_fact,
+vì khác một từ cũng có thể là khác thuốc, khác đường dùng, khác liều.
 
 Chạy: python toolbox/scripts/b3_novel.py G1-B08
 Kết quả: kho/lessons/<lesson>/novel_<code>.jsonl
 """
-import glob
 import json
 import os
-import re
 import sys
 from collections import Counter
 from difflib import SequenceMatcher
@@ -20,28 +18,9 @@ from scripts.b2b_layout import split_units  # noqa: E402
 
 SIMILAR = 0.9
 TOP_CANDIDATES = 5
-FACT_WORDS = {
-    "mg", "mcg", "µg", "ug", "g", "kg", "ml", "l", "iu", "ui", "mmol", "meq", "%",
-    "giờ", "phút", "ngày", "tuần", "tháng", "năm", "tuổi", "lần",
-    "không", "chưa", "chẳng", "đừng", "cấm", "chống",
-    "tăng", "giảm", "trên", "dưới", "hơn", "nhất", "trước", "sau",
-    "<", ">", "≤", "≥",
-}
-NUMBER = re.compile(r"\d+(?:[.,]\d+)?")
-
 
 def _words(sentence: str) -> list[str]:
     return [w for w in (t.strip(".,;:()[]\"'") for t in common.nfc(sentence).lower().split()) if w]
-
-
-def _facts(words: list[str]) -> set[str]:
-    facts = {w for w in words if w in FACT_WORDS}
-    for w in words:
-        facts.update(NUMBER.findall(w))
-        unit = NUMBER.sub("", w)
-        if unit in FACT_WORDS:
-            facts.add(unit)
-    return facts
 
 
 def novel_sentences(book_text: str, source_pages: dict[int, str]) -> list[dict]:
@@ -62,12 +41,9 @@ def novel_sentences(book_text: str, source_pages: dict[int, str]) -> list[dict]:
                 ratio = SequenceMatcher(None, words, book[i], autojunk=False).ratio()
                 if ratio > best_ratio:
                     best, best_ratio = i, ratio
-            if best is not None and best_ratio >= SIMILAR:
-                if _facts(words) == _facts(book[best]):
-                    continue
-                reason = "changed_fact"
-            else:
-                reason = "new"
+            if best is not None and words == book[best]:
+                continue
+            reason = "changed_fact" if best_ratio >= SIMILAR else "new"
             result.append({"page": page, "text": sentence, "reason": reason})
     return result
 

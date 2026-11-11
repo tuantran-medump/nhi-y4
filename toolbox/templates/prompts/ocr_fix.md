@@ -7,4 +7,6 @@ Chỉ phát file JSON bản vá, không chép lại văn bản:
 
 - Chỉ sửa lỗi nhận dạng. Không đổi từ, số, đơn vị theo suy đoán.
 - Số, liều, đơn vị nghi sai: đối chiếu ảnh trang gốc. Vẫn không chắc thì đổi thành `[?chữ?]`.
-- `learn: true` chỉ cho lỗi lặp lại chắc chắn đúng ở mọi ngữ cảnh.
+- Sửa chữ số (ví dụ `5OO` thành `500`): bắt buộc đã xem ảnh gốc và ghi `"verified": true`, nếu không script từ chối.
+- `learn: true` chỉ cho lỗi chữ lặp lại chắc chắn đúng ở mọi ngữ cảnh. Từ điển không nhận mục có chữ số.
+- Bảng, lưu đồ: bọc phần OCR bằng dòng `<<block:t1>>` và `<<endblock>>` qua bản vá, rồi gõ lại ở `kho/lessons/<bài>/blocks/t1.md`.

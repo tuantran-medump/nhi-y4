@@ -14,6 +14,9 @@ from scripts.b2b_layout import verify_words  # noqa: E402
 CITE = re.compile(r"\[([GSCNRE]\d*):p[^\]]+\]")
 FACT = re.compile(r"\d+(?:[.,]\d+)?\s*(?:mg|mcg|µg|g/|ml|mL|UI|IU|mmol|mEq|%|ngày|giờ|lần)", re.I)
 SECTIONS = ["approach", "experience", "exam", "conflicts"]
+BLOCK = re.compile(r"<<block:([\w-]+)>>\n(.*?)<<endblock>>", re.S)
+OPEN = re.compile(r"^<<block:([\w-]+)>>\s*$", re.M)
+NUM = re.compile(r"\d+(?:[.,]\d+)?")
 
 
 def check(lesson: str) -> list[dict]:
@@ -35,7 +38,18 @@ def check(lesson: str) -> list[dict]:
     all_text = body + "\n" + "\n".join(str(v) for v in extra.values())
     for code in sorted({m.group(1) for m in CITE.finditer(all_text)} - known):
         add("unknown_source", 0, f"Mã nguồn không có trong danh mục: {code}")
+    filled = dict(BLOCK.findall(body))
+    for name in OPEN.findall(body):
+        if name not in filled:
+            add("unfilled_block", 0, f"Chưa gõ lại khối {name}")
+    in_block = False
     for n, line in enumerate(body.split("\n"), 1):
+        if OPEN.match(line):
+            in_block = True
+        if line.strip() == "<<endblock>>":
+            in_block = False
+        if in_block:
+            continue
         if FACT.search(line) and not CITE.search(line):
             add("uncited_fact", n, line.strip())
         if "[?" in line:
@@ -44,6 +58,10 @@ def check(lesson: str) -> list[dict]:
         fixed = common.read_text(common.kho_path("lessons", lesson, "fixed.txt"))
         for d in verify_words(fixed, body):
             add("body_changed", 0, d)
+        for name, source in BLOCK.findall(fixed):
+            lost = set(NUM.findall(source)) - set(NUM.findall(filled.get(name, "")))
+            if name in filled and lost:
+                add("block_number", 0, f"Khối {name} thiếu số so với sách: {sorted(lost)}")
     return issues
 
 

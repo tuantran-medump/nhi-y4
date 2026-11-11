@@ -4,6 +4,8 @@ Chạy:
   python toolbox/scripts/b2_ocr_fix.py G1-B08 suspects
   python toolbox/scripts/b2_ocr_fix.py G1-B08 patch patch.json
 Bản vá: [{"line": 12, "old": "phồi", "new": "phổi", "learn": true}]
+Sửa chữ số bắt buộc đối chiếu ảnh gốc và ghi "verified": true.
+Bọc bảng, hình bằng dòng <<block:t1>> và <<endblock>> để gõ lại riêng.
 Kết quả: kho/lessons/<lesson>/fixed.txt
 """
 import json
@@ -16,7 +18,16 @@ from lib import common  # noqa: E402
 
 BEFORE = r"(?<![\w])"
 AFTER = r"(?![\w])"
-GARBLED = re.compile(r"[^\W\d_]+\d+[^\W\d_]+|[^\W\d_]+[|~^\\]+[^\W\d_]*|[|~^\\]+[^\W\d_]+")
+GARBLED = re.compile(r"[^\W\d_]+\d+[^\W\d_]+|[^\W\d_]+[|~^\\]+[^\W\d_]*|[|~^\\]+[^\W\d_]+"
+                     r"|(?<![^\W\d_])(?:\d+[OolI]+\d*|[OolI]+[.,]?\d+)(?![^\W\d_])")
+
+
+def _has_digit(s: str) -> bool:
+    return any(c.isdigit() for c in s)
+
+
+def _digits(s: str) -> list[str]:
+    return [c for c in s if c.isdigit()]
 
 
 def load_dict(path: str | None = None) -> list[tuple[str, str]]:
@@ -28,6 +39,8 @@ def load_dict(path: str | None = None) -> list[tuple[str, str]]:
 
 
 def _learn(path: str, wrong: str, right: str) -> None:
+    if _has_digit(wrong) or _has_digit(right):
+        return  # số phải được đối chiếu từng chỗ, không tự sửa hàng loạt
     table = load_dict(path)
     if (wrong, right) not in table:
         table.append((wrong, right))
@@ -37,6 +50,8 @@ def _learn(path: str, wrong: str, right: str) -> None:
 def apply_dict(text: str, table: list[tuple[str, str]]) -> tuple[str, int]:
     total = 0
     for wrong, right in table:
+        if _has_digit(wrong) or _has_digit(right):
+            continue
         text, n = re.subn(BEFORE + re.escape(wrong) + AFTER, lambda _m, r=right: r, text)
         total += n
     return text, total
@@ -48,6 +63,8 @@ def apply_patch(text: str, patch: list[dict], dict_path: str | None = None) -> s
         n = p["line"]
         if not 1 <= n <= len(lines) or p["old"] not in lines[n - 1]:
             raise ValueError(f"Dòng {n} không khớp: {p['old']!r}")
+        if _digits(p["old"]) != _digits(p["new"]) and not p.get("verified"):
+            raise ValueError(f"Dòng {n} đổi số, cần đối chiếu ảnh gốc rồi ghi verified: true")
     for p in patch:
         lines[p["line"] - 1] = lines[p["line"] - 1].replace(p["old"], p["new"], 1)
     for p in patch:

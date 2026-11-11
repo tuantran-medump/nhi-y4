@@ -61,24 +61,46 @@ def _lesson_of(printed: int | None, starts: list[tuple[int, str]]) -> str:
     return cur
 
 
+def _effective_pages(numbers: dict[int, int | None]) -> tuple[dict[int, int], set[int]]:
+    """Đánh số lại trang PDF, bỏ qua trang scan lặp (hai trang liền cùng số in)."""
+    eff: dict[int, int] = {}
+    dup: set[int] = set()
+    prev_page, prev_value = None, None
+    for p in sorted(numbers):
+        v = numbers[p]
+        if v is not None and v == prev_value and p == prev_page + 1:
+            dup.add(p)
+        eff[p] = p - len(dup)
+        prev_page, prev_value = p, v
+    return eff, dup
+
+
 def build_map(code: str, lessons: list[dict]) -> tuple[list[dict], list[dict]]:
     files = sorted(glob.glob(common.kho_path(code, "p[0-9][0-9][0-9][0-9].txt")))
     numbers = {int(os.path.basename(f)[1:5]): parse_printed(common.read_text(f)) for f in files}
-    parsed = [(p, v) for p, v in sorted(numbers.items()) if v is not None]
+    eff, dup = _effective_pages(numbers)
+    parsed = [(eff[p], v) for p, v in sorted(numbers.items()) if v is not None and p not in dup]
     keep = _accepted(parsed)
-    good = {p: v for p, v in parsed if p in keep}
+    good = {p: v for p, v in numbers.items() if v is not None and p not in dup and eff[p] in keep}
+    anchors = sorted(good)
+    if len(anchors) >= 2:  # số cuối dãy tạo ra khoảng trống mà không có trang sau xác nhận: nghi đọc nhầm
+        a, b = anchors[-2], anchors[-1]
+        if good[b] - good[a] > eff[b] - eff[a]:
+            del good[b]
+            anchors.pop()
     starts = sorted((int(r["start_printed"]), r["lesson"]) for r in lessons if r["book"] == code)
     rows, gaps = [], []
-    anchors = sorted(good)
     for p in sorted(numbers):
-        if p in good:
+        if p in dup:
+            value, conf = numbers[p], "duplicate"
+        elif p in good:
             value, conf = good[p], "ok"
         else:
             before = max((a for a in anchors if a < p), default=None)
             after = min((a for a in anchors if a > p), default=None)
             value = None
-            if before is not None and after is not None and good[after] - good[before] == after - before:
-                value = good[before] + (p - before)
+            if before is not None and after is not None and good[after] - good[before] == eff[after] - eff[before]:
+                value = good[before] + (eff[p] - eff[before])
             conf = "uncertain"
         rows.append({"pdf_page": p, "printed_page": "" if value is None else value,
                      "lesson": _lesson_of(value, starts), "confidence": conf})
@@ -86,10 +108,10 @@ def build_map(code: str, lessons: list[dict]) -> tuple[list[dict], list[dict]]:
         if row["lesson"] == "" and r_i and anchors and anchors[0] < row["pdf_page"]:
             row["lesson"] = rows[r_i - 1]["lesson"]
     for a, b in zip(anchors, anchors[1:]):
-        extra = (good[b] - good[a]) - (b - a)
+        extra = (good[b] - good[a]) - (eff[b] - eff[a])
         if extra <= 0:
             continue
-        exact = b - a == 1
+        exact = eff[b] - eff[a] == 1
         for v in range(good[a] + 1, good[b]):
             gaps.append({"book": code, "printed_page": v, "lesson": _lesson_of(v, starts),
                          "note": "" if exact else f"thiếu {extra} trang trong khoảng này"})

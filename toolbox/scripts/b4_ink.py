@@ -63,6 +63,8 @@ def make_tasks(lesson: str, root: str | None = None, conf_engine=None) -> list[d
         if row["lesson"] != lesson:
             continue
         m = manifest[row["code"]]
+        if m["kind"] == "needs_manual":
+            continue
         path = os.path.join(root, m["path"])
         if os.path.splitext(path)[1].lower() not in (".pdf", ".png", ".jpg", ".jpeg"):
             continue
@@ -85,7 +87,8 @@ def make_tasks(lesson: str, root: str | None = None, conf_engine=None) -> list[d
                     if item["sha"] in cache:
                         cached.append((item, png))
                         continue
-                    text, conf = conf_engine(png)
+                    low = os.path.exists(common.page_file(row["code"], n, "lowocr.txt"))
+                    text, conf = ("", 0.0) if low else conf_engine(png)
                     if conf >= MIN_CONF:
                         common.write_text(common.page_file(row["code"], n), text)
                     else:

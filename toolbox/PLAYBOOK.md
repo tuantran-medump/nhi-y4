@@ -25,7 +25,8 @@ Cách dùng: agent đọc mục 1, 2 và 7 ở đầu mỗi phiên, các mục k
 ### 2.2 Thân bài
 
 - Thân bài theo đúng đề mục, thứ tự và câu chữ của bài trong sách. Không tóm tắt, không viết lại.
-- Chỉ được sửa lỗi OCR. Mọi chỗ không chắc ghi `[?chữ?]` và đối chiếu ảnh trang gốc.
+- Chỉ được sửa lỗi OCR. Mọi chỗ không chắc ghi `[?chữ?]` và đối chiếu ảnh trang gốc. Sửa chữ số bắt buộc đối chiếu ảnh gốc từng chỗ và ghi `verified: true`, từ điển OCR không bao giờ sửa chữ số.
+- Tiêu đề chạy, số trang, dấu CamScanner được script loại, không thuộc nội dung sách. Trang scan bị lặp chỉ lấy một lần.
 - Trình bày: giữ nguyên chữ nhưng **tách mỗi ý thành một dòng**, thụt lề theo quan hệ cha con:
   - Đề mục giữ đúng số của sách (1., 2.1, 2.4.1).
   - Ý thường: cấp 1 `-`, cấp 2 `+`, cấp 3 `*`.
@@ -76,7 +77,7 @@ Mọi ý phải truy được về nguồn. Ngoại lệ duy nhất là mục 2.
 
 ### 2.7 Hình và bảng
 
-- Bảng và lưu đồ có chữ: gõ lại để tìm kiếm và sửa được.
+- Bảng và lưu đồ có chữ: gõ lại để tìm kiếm và sửa được. Trong `fixed.txt`, bọc phần OCR của bảng bằng dòng `<<block:t1>>` và `<<endblock>>`, gõ lại ở `kho/lessons/<bài>/blocks/t1.md`. Script kiểm tra mọi con số trong khối gốc có mặt trong bản gõ lại.
 - Hình giải phẫu, X-quang, ảnh lâm sàng, biểu đồ: cắt từ bản gốc bằng script và chèn đúng chỗ, giữ số hình và chú thích của sách.
 
 ### 2.8 An toàn file
@@ -109,7 +110,7 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 |---|---|---|
 | A1 | Lập danh mục: đường dẫn, hash, số trang, loại trang (chữ, ảnh, lẫn), cấp mã nguồn | Bảng mã nguồn |
 | A2 | Loại bản trùng: trùng hash, rồi trùng nội dung chữ. Bản có ghi chú viết tay khác biệt vẫn giữ | Danh sách bản chính |
-| A3 | Kiểm thử Tesseract trên vài trang (cả trang có bảng), người dùng xem kết quả, rồi OCR hai tập | Chữ từng trang của sách |
+| A3 | Kiểm thử Tesseract trên vài trang (cả trang có bảng), người dùng xem kết quả, rồi OCR hai tập và mọi trang scan của nguồn tham khảo (`a3_ocr.py scans`, chạy sau A1, A2, trước A6) | Chữ từng trang |
 | A4 | Lập bản đồ trang: số trang in ứng với trang PDF, ranh giới từng bài, **báo trang thiếu** | Bản đồ trang |
 | A5 | Trích chữ theo trang cho toàn bộ file có lớp chữ | Kho chữ |
 | A6 | Gán nguồn vào bài theo thư mục, tên file, rồi kiểm tra từ khóa trong kho chữ | Bảng nguồn theo bài |
@@ -144,7 +145,7 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 5. Bỏ bản trùng trước khi đọc.
 6. Đọc ảnh theo lô bằng ảnh ghép nhiều vùng, độ phân giải vừa đủ, không đưa ảnh vào cuộc chat chính.
 7. Kiểm tra bằng script, chỉ mở đúng dòng bị báo lỗi.
-8. Lọc câu mới: script bỏ các câu trong nguồn tham khảo đã có trong sách, model chỉ đọc phần khác biệt.
+8. Lọc câu mới: script chỉ bỏ các câu trong nguồn tham khảo giống hệt câu sách từng từ, model đọc phần còn lại. Câu gần giống luôn được giữ vì có thể khác thuốc, đường dùng hoặc liều.
 9. Từ điển lỗi OCR tích lũy: mỗi lỗi sửa một lần rồi lưu, các bài sau script tự sửa.
 10. Thẻ bằng chứng: đọc xong một nguồn thì ghi thẻ ngắn (ý, mã, trang). File dùng cho nhiều bài chỉ nạp thẻ, không đọc lại.
 11. Sổ tiến độ, mỗi bài 1 phiên: trạng thái từng bài nằm trong file, bị ngắt thì làm tiếp đúng chỗ.

@@ -25,6 +25,7 @@ def _pattern(keywords: str) -> re.Pattern:
 
 def _page_texts(code: str) -> dict[int, str]:
     files = glob.glob(common.kho_path(code, "p[0-9][0-9][0-9][0-9].txt"))
+    files += glob.glob(common.kho_path(code, "p[0-9][0-9][0-9][0-9].lowocr.txt"))
     return {int(os.path.basename(f)[1:5]): common.nfc(common.read_text(f)) for f in files}
 
 
@@ -49,7 +50,7 @@ def assign(manifest: list[dict], keywords: list[dict], root: str) -> list[dict]:
         total = int(m["pages"] or 0) or max(texts, default=0)
         inks = None
         for lesson, hint, pat in compiled:
-            if hint and hint != m["specialty"]:
+            if hint and m["specialty"] and hint != m["specialty"]:
                 continue
             hits = {p: len(pat.findall(t)) for p, t in texts.items()}
             hits = {p: n for p, n in hits.items() if n}

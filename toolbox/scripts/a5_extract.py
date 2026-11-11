@@ -66,17 +66,26 @@ def extract(row: dict, root: str) -> str:
     return "done"
 
 
-def main() -> None:
-    root = os.path.join(common.load_config()["source_root"], "Tài liệu")
+def run(rows: list[dict], root: str) -> dict:
     counts: dict[str, int] = {}
-    for r in common.read_csv(common.data_path("manifest.csv")):
+    for r in rows:
         if r["status"] != "primary":
             continue
         res = extract(r, root)
         counts[res] = counts.get(res, 0) + 1
         if res == "needs_manual":
+            r["kind"] = "needs_manual"
             print("Cần xử lý tay:", r["code"], r["path"])
-    print(counts)
+    return counts
+
+
+def main() -> None:
+    from scripts.a1_inventory import FIELDS
+    root = os.path.join(common.load_config()["source_root"], "Tài liệu")
+    path = common.data_path("manifest.csv")
+    rows = common.read_csv(path)
+    print(run(rows, root))
+    common.write_csv(path, rows, FIELDS)
 
 
 if __name__ == "__main__":

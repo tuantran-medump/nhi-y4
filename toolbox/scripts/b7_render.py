@@ -123,14 +123,28 @@ def _sources_table(text: str) -> str:
     return "\n".join(rows)
 
 
+def _gap_lines(gaps: list[dict]) -> list[str]:
+    lines = []
+    exact = [g["printed_page"] for g in gaps if not g.get("note")]
+    if exact:
+        lines.append("- Thiếu trang in trong bản scan: " + ", ".join(exact))
+    groups: dict[str, list[int]] = {}
+    for g in gaps:
+        if g.get("note"):
+            groups.setdefault(g["note"], []).append(int(g["printed_page"]))
+    for note, pages in groups.items():
+        lines.append(f"- Trang in {min(pages)}-{max(pages)}: {note}, chưa rõ trang nào")
+    return lines
+
+
 def assemble(info: dict) -> str:
     lesson = info["lesson"]
     extra = common.read_json(common.kho_path("lessons", lesson, "extra.json"), {})
     body = common.read_text(common.kho_path("lessons", lesson, "body.md")).strip()
     missing = (extra.get("missing") or "").strip()
-    gaps = [g["printed_page"] for g in common.read_csv(common.data_path("gaps.csv")) if g["lesson"] == lesson]
-    if gaps:
-        missing = (missing + "\n" if missing else "") + "- Thiếu trang in trong bản scan: " + ", ".join(gaps)
+    gap_lines = _gap_lines([g for g in common.read_csv(common.data_path("gaps.csv")) if g["lesson"] == lesson])
+    if gap_lines:
+        missing = "\n".join(([missing] if missing else []) + gap_lines)
     values = {
         "title": info["title"], "lesson": lesson, "society": info.get("society") or "Không áp dụng",
         "date": datetime.date.today().isoformat(),

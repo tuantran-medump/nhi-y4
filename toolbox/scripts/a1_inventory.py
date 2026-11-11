@@ -33,7 +33,12 @@ def classify(path: str) -> tuple[str, int]:
     if ext in OFFICE_EXT:
         return "office", 0
     if ext in IMAGE_EXT:
-        return "image", 1
+        try:
+            with pymupdf.open(path) as d:
+                d[0].get_pixmap()  # ảnh hỏng chỉ báo lỗi khi đọc trang
+                return "image", 1
+        except Exception:
+            return "needs_manual", 0
     if ext != ".pdf":
         return "needs_manual", 0
     try:

@@ -57,11 +57,35 @@ def ocr_pages(pdf: str, code: str, pages: list[int] | None = None, engine=tesser
     return done
 
 
+def ocr_scans(rows: list[dict], root: str, engine=tesseract_conf, min_conf: float = 80) -> int:
+    """OCR các trang chưa có chữ của nguồn tham khảo, để A6 gán bài được theo nội dung.
+
+    Trang tin cậy thấp lưu riêng .lowocr.txt: chỉ dùng để tìm kiếm, không dùng làm nội dung.
+    """
+    done = 0
+    for r in rows:
+        if r["status"] != "primary" or r["code"] in ("G1", "G2") or r["kind"] not in ("image", "mixed"):
+            continue
+        with pymupdf.open(os.path.join(root, r["path"])) as d:
+            for n in range(1, d.page_count + 1):
+                good, low = common.page_file(r["code"], n), common.page_file(r["code"], n, "lowocr.txt")
+                if os.path.exists(good) or os.path.exists(low):
+                    continue
+                text, conf = engine(d[n - 1].get_pixmap(dpi=DPI).tobytes("png"))
+                common.write_text(good if conf >= min_conf else low, text)
+                done += 1
+    return done
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("code")
+    ap.add_argument("code", help="G1, G2 hoặc scans (mọi trang scan của nguồn tham khảo)")
     ap.add_argument("--sample", help="danh sách trang PDF, ví dụ 12,130")
     a = ap.parse_args()
+    if a.code == "scans":
+        root = os.path.join(common.load_config()["source_root"], "Tài liệu")
+        print(f"OCR xong {ocr_scans(common.read_csv(common.data_path('manifest.csv')), root)} trang mới")
+        return
     row = next(r for r in common.read_csv(common.data_path("manifest.csv")) if r["code"] == a.code)
     pdf = os.path.join(common.load_config()["source_root"], "Tài liệu", row["path"])
     pages = [int(x) for x in a.sample.split(",")] if a.sample else None

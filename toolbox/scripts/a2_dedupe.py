@@ -1,22 +1,18 @@
 """A2. Đánh dấu bản trùng trong data/manifest.csv.
 
-Trùng hash là bản trùng. Trùng chữ (từ 0.97) chỉ là bản trùng khi số nét và ghi chú
+Trùng hash là bản trùng. Trùng toàn bộ chữ chỉ là bản trùng khi số nét và ghi chú
 bằng nhau, vì bản có ghi chú tay khác biệt vẫn phải giữ.
 
 Chạy: python toolbox/scripts/a2_dedupe.py
 """
 import os
 import sys
-from difflib import SequenceMatcher
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pymupdf  # noqa: E402
 
 from lib import common  # noqa: E402
 from scripts.a1_inventory import FIELDS  # noqa: E402
-
-THRESHOLD = 0.97
-MAX_WORDS = 4000
 
 
 def _profile(path: str) -> tuple[list[str], int]:
@@ -34,12 +30,8 @@ def _profile(path: str) -> tuple[list[str], int]:
 
 
 def _same_text(a: list[str], b: list[str]) -> bool:
-    if not a or not b or min(len(a), len(b)) / max(len(a), len(b)) < THRESHOLD:
-        return False
-    sa, sb = set(a), set(b)
-    if len(sa & sb) / len(sa | sb) < 0.9:
-        return False
-    return SequenceMatcher(None, a[:MAX_WORDS], b[:MAX_WORDS], autojunk=False).ratio() >= THRESHOLD
+    """Chỉ coi là trùng khi toàn bộ từ giống hệt, vì bản cập nhật có thể chỉ khác một liều."""
+    return bool(a) and a == b
 
 
 def mark(rows: list[dict], root: str) -> list[dict]:
