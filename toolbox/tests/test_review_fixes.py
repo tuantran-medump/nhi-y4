@@ -58,6 +58,15 @@ class TestPageMap(Home):
         self.assertEqual((rows[2]["lesson"], rows[2]["printed_page"], rows[2]["confidence"]), ("G1-B07", 105, "ok"))
         self.assertEqual([g["printed_page"] for g in gaps], [104])
 
+    def test_manual_override_applied(self):
+        self.numbered([157, 158, 159])
+        common.write_csv(common.data_path("pagemap_overrides.csv"),
+                         [{"book": "G1", "pdf_page": "3", "printed_page": "170", "lesson": "G1-B11"}],
+                         ["book", "pdf_page", "printed_page", "lesson"])
+        lessons = LESSONS + [{"lesson": "G1-B11", "book": "G1", "title": "N", "start_printed": "170"}]
+        rows, _ = a4_pagemap.build_map("G1", lessons)
+        self.assertEqual((rows[2]["lesson"], rows[2]["printed_page"], rows[2]["confidence"]), ("G1-B11", 170, "ok"))
+
     def test_misread_last_page_uncertain(self):
         self.numbered([156, 157, 158, 162])
         rows, gaps = a4_pagemap.build_map("G1", LESSONS)

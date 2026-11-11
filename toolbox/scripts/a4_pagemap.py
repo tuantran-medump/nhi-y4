@@ -128,6 +128,13 @@ def build_map(code: str, lessons: list[dict]) -> tuple[list[dict], list[dict]]:
         for v in range(good[a] + 1, good[b]):
             gaps.append({"book": code, "printed_page": v, "lesson": _lesson_of(v, starts),
                          "note": "" if exact else f"thiếu {extra} trang trong khoảng này"})
+    overrides = {int(o["pdf_page"]): o for o in common.read_csv(common.data_path("pagemap_overrides.csv"))
+                 if o["book"] == code}
+    for row in rows:  # bảng ghi đè thủ công cho trang OCR không nhận ra
+        o = overrides.get(row["pdf_page"])
+        if o:
+            row.update(printed_page=int(o["printed_page"]), lesson=o["lesson"], confidence="ok")
+    gaps = [g for g in gaps if not any(int(o["printed_page"]) == g["printed_page"] for o in overrides.values())]
     return rows, gaps
 
 
