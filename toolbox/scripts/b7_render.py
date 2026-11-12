@@ -19,6 +19,7 @@ import pymupdf  # noqa: E402
 from lib import common  # noqa: E402
 
 CITE = re.compile(r"\[([GSCNRE]\d*):p([^\]]+)\]")
+STAR_LINE = re.compile(r"^\s*⭐\s+(.*)$")
 LIST = re.compile(r"^(\s*)([-+*]|\d+\.|[IVXLC]+\.)\s+(.*)$")
 EMPTY = "Không có trong nguồn"
 MARK_CLASS = {"-": "m-dash", "+": "m-plus", "*": "m-star"}
@@ -168,6 +169,10 @@ def md_to_html(md: str, links: dict) -> str:
         line = lines[i]
         i += 1
         if re.fullmatch(r"\s*<<.*>>\s*", line):
+            continue
+        star = STAR_LINE.match(line)
+        if star:  # ghi chú mâu thuẫn nằm trong ý phía trên, không cắt danh sách
+            out.append(f'<div class="star"><span class="star-mark">⭐</span> {_item(tidy_citations(star.group(1)), links)}</div>')
             continue
         m = LIST.match(line)
         if m and not line.lstrip().startswith("**"):

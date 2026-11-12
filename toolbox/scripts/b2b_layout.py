@@ -131,6 +131,8 @@ def _content_lines(text: str) -> list[str]:
             in_block = stripped != BLOCK_END
         elif BLOCK_OPEN.match(stripped):
             in_block = True
+        elif stripped.startswith("⭐"):  # dòng ghi chú mâu thuẫn, không thuộc câu chữ sách
+            continue
         elif not PAGE.match(stripped):
             lines.append(line)
     return lines

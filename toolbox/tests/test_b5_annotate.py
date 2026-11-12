@@ -51,5 +51,34 @@ class TestNotes(unittest.TestCase):
         self.assertEqual(verify_words("Điều trị 5 ngày.", body), [])
 
 
+class TestConflictStar(unittest.TestCase):
+    NOTE = {"line": 1, "note": "(Slide 2024: 3 ngày [S1:p4])", "resolve": "Kết luận theo AAP 2011: 5 ngày [E1:p2]"}
+
+    def test_conflict_note_goes_on_star_lines_below_item(self):
+        out = b5_annotate.apply_notes("  + Điều trị 5 ngày.\n- Tiếp.", [self.NOTE])
+        self.assertEqual(out.split("\n"), ["  + Điều trị 5 ngày.",
+                                           "      ⭐ (Slide 2024: 3 ngày [S1:p4])",
+                                           "      ⭐ Kết luận theo AAP 2011: 5 ngày [E1:p2]",
+                                           "- Tiếp."])
+
+    def test_star_lines_keep_later_line_numbers(self):
+        notes = [self.NOTE, {"line": 2, "note": "(Ghi chú lớp: x [S1:p1])"}]
+        out = b5_annotate.apply_notes("- A.\n- B.", notes).split("\n")
+        self.assertEqual(out[-1], "- B (Ghi chú lớp: x [S1:p1]).")
+
+    def test_resolve_needs_label_and_source(self):
+        for bad in ("5 ngày [E1:p2]", "Kết luận theo AAP 2011: 5 ngày"):
+            with self.assertRaises(ValueError):
+                b5_annotate.apply_notes("- A.", [{**self.NOTE, "resolve": bad}])
+
+    def test_unconfirmed_resolve_allowed_without_source(self):
+        note = {**self.NOTE, "resolve": "Kết luận: Chưa thấy có nguồn hiệp hội/guideline xác nhận"}
+        self.assertIn("⭐ Kết luận: Chưa thấy", b5_annotate.apply_notes("- A.", [note]))
+
+    def test_star_body_still_verifies(self):
+        body = b5_annotate.apply_notes("- Điều trị 5 ngày.", [self.NOTE])
+        self.assertEqual(verify_words("Điều trị 5 ngày.", body), [])
+
+
 if __name__ == "__main__":
     unittest.main()

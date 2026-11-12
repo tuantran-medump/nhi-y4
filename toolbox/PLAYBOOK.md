@@ -49,8 +49,16 @@ Trình bày: nhãn `Sách`, `Nguồn`, `Kết luận theo <tên guideline>` in �
 
 Mâu thuẫn là khi hai nguồn đưa ra chỉ định, liều, ngưỡng hoặc tiêu chuẩn không thể cùng đúng.
 
-1. Thân bài giữ theo sách, có chú thích ngoặc đơn như mục 2.3.
-2. Mục "Mâu thuẫn nguồn" ghi: điểm lệch, từng nguồn nói gì, kết luận của hiệp hội trọng tài.
+1. Thân bài giữ theo sách. Ở ý có mâu thuẫn, chú thích không nằm cuối câu mà xuống dòng ngay dưới ý, thụt vào, mở đầu bằng ⭐. Mỗi điểm có 2 dòng ⭐: dòng chú thích ngoặc đơn (nguồn khác nói gì) và dòng `Kết luận theo <guideline năm>: ...` có nền kem. Ví dụ:
+
+   ```
+   + Giảm đạm máu: albumin/máu < 30 g/L [G1:p203]
+       ⭐ (Slide BS Như Uyên, Tài liệu ôn: albumin < 25 g/L [S088:p6][R004:p77])
+       ⭐ Kết luận theo KDIGO 2025: albumin < 30 g/L, sách đúng [E16:p17]
+   ```
+
+   Trong `notes.json`, chú thích mâu thuẫn có thêm khóa `resolve` chứa dòng kết luận; `b5_annotate.py apply` tự tạo 2 dòng ⭐. Dòng ⭐ không tính vào phần so khớp câu chữ sách.
+2. Mục "Mâu thuẫn nguồn" ở Phần B vẫn ghi bản đầy đủ: điểm lệch, từng nguồn nói gì, kết luận của hiệp hội trọng tài.
 3. Mỗi bài ưu tiên 1 hiệp hội, chốt trước khi soạn. Không có hoặc không đọc được guideline của hiệp hội đó thì được dùng guideline uy tín khác (ví dụ PIDS/IDSA, BTS, Bộ Y tế), ghi rõ tên. Mặc định:
 
 | Bài | Hiệp hội |

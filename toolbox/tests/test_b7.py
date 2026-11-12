@@ -59,6 +59,13 @@ class TestNavAndCrop(unittest.TestCase):
         self.assertIn("1.1. Dịch tễ", nav)
         self.assertNotIn("Tên", nav)
 
+    def test_star_line_stays_inside_list_item(self):
+        html = b7_render.md_to_html("- A [G1:p1]\n    ⭐ (Slide: B [S1:p2])\n    ⭐ Kết luận theo AAP 2011: A [E1:p1]\n- C", {})
+        self.assertEqual(html.count("<ul>"), 1)
+        self.assertIn('<div class="star"><span class="star-mark">⭐</span> <span class="note">', html)
+        self.assertIn('<div class="star"><span class="star-mark">⭐</span> <span class="note resolve"><b>Kết luận theo AAP 2011:</b>', html)
+        self.assertLess(html.index("star"), html.index(">C"))
+
     def test_long_nav_uses_two_columns(self):
         short = b7_render._nav(b7_render.md_to_html("## A\n## B", {}))
         long_md = "\n".join(f"## Mục {i}" for i in range(40))

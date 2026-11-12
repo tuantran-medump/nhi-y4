@@ -18,6 +18,10 @@ from lib import common  # noqa: E402
 PAGE = re.compile(r"^<<p(\d+)>>$")
 FACT = re.compile(r"\d|chỉ định|tiêu chuẩn|chống chỉ định|liều", re.I)
 NOTE_OK = re.compile(r"^\([^()]*\[[SCNRE]\d+:p[^\]]*\][^()]*\)$")
+STAR = "⭐"
+RESOLVE_OK = re.compile(r"^Kết luận[^:\[]{0,80}:\s*\S")
+SOURCE = re.compile(r"\[[SCNRE]\d+:p[^\]]*\]")
+UNCONFIRMED = "Chưa thấy có nguồn hiệp hội/guideline xác nhận"
 
 
 def _insert(line: str, text: str) -> str:
@@ -52,9 +56,22 @@ def apply_notes(body: str, notes: list[dict]) -> str:
             raise ValueError(f"Dòng {n['line']}: chú thích phải trong ngoặc đơn và có mã nguồn tham khảo: {n['note']}")
         if not target or target.startswith("<<") or target.startswith("|"):
             raise ValueError(f"Dòng {n['line']} không chèn chú thích được")
+        resolve = n.get("resolve")
+        if resolve is not None and not (RESOLVE_OK.match(resolve) and (SOURCE.search(resolve) or UNCONFIRMED in resolve)):
+            raise ValueError(f"Dòng {n['line']}: kết luận mâu thuẫn phải mở đầu 'Kết luận theo ...:' và có mã nguồn: {resolve}")
+    stars: dict[int, list[str]] = {}
     for n in sorted(notes, key=lambda x: x["line"]):
-        lines[n["line"] - 1] = _insert(lines[n["line"] - 1], n["note"])
-    return "\n".join(lines)
+        i = n["line"] - 1
+        if n.get("resolve"):  # chú thích mâu thuẫn: xuống dòng ⭐ thụt vào dưới ý, kèm kết luận
+            stars.setdefault(i, []).extend([n["note"], n["resolve"]])
+        else:
+            lines[i] = _insert(lines[i], n["note"])
+    out: list[str] = []
+    for i, line in enumerate(lines):
+        out.append(line)
+        pad = " " * (len(line) - len(line.lstrip()) + 4)
+        out += [f"{pad}{STAR} {text}" for text in stars.get(i, [])]
+    return "\n".join(out)
 
 
 def _paths(lesson: str) -> tuple[str, str]:

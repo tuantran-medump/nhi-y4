@@ -37,6 +37,7 @@ Mã bài: ________  Ngày kiểm: ________
 - [ ] Mọi chỉnh sửa từ nguồn khác nằm trong ngoặc đơn ngay sau ý, có mã nguồn (2.3)
 - [ ] Mâu thuẫn có đủ: điểm lệch, từng nguồn nói gì, kết luận của hiệp hội ưu tiên, hoặc hiệp hội uy tín khác nếu không tìm được, có ghi tên (2.4)
 - [ ] Thân bài vẫn giữ theo sách ở điểm mâu thuẫn (2.4)
+- [ ] Mỗi điểm mâu thuẫn có 2 dòng ⭐ thụt vào ngay dưới ý trong thân bài: chú thích nguồn và kết luận theo guideline, khớp với mục "Mâu thuẫn nguồn" (2.4)
 - [ ] Nguồn ngoài chỉ dùng cho điểm mâu thuẫn, có mã `E` trong danh mục (2.4)
 - [ ] Điểm không có nguồn giải quyết ghi "Chưa thấy có nguồn hiệp hội/guideline xác nhận" (2.4)
 

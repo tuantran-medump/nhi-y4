@@ -53,6 +53,11 @@ class TestCheck(Base):
         self.setup_lesson(fixed="Liều 90 mg mỗi ngày.", body="- Liều 90 mg mỗi ngày [G1:p12].")
         self.assertNotIn("uncited_fact", self.rules())
 
+    def test_unconfirmed_star_line_needs_no_citation(self):
+        body = "- Viêm phổi là bệnh.\n    ⭐ Kết luận: Chưa thấy có nguồn hiệp hội/guideline xác nhận liều 90 mg"
+        self.setup_lesson(body=body)
+        self.assertEqual(check_lesson.check("L"), [])
+
     def test_unknown_source_code(self):
         self.setup_lesson(body="- Viêm phổi là bệnh [S999:p1].")
         self.assertIn("unknown_source", self.rules())

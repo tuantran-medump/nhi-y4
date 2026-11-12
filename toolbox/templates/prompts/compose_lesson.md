@@ -4,7 +4,7 @@
 
 Ghi:
 
-1. `kho/lessons/<bài>/notes.json`: mảng `{"line": n, "note": "(...)"}`. Gộp notes từ các file thẻ, bỏ trùng, bỏ mục sách đã nói, bỏ mục ngoài trẻ em, tối đa 1-2 chú thích mỗi dòng. Chú thích trong đúng một cặp ngoặc đơn, không ngoặc lồng, có mã S/C/N/R, mở đầu bằng tên người tạo nguồn nếu biết (`Giảng viên:`, `Ghi chú lớp:`, `Slide BS X:`). Dòng thuộc bảng hoặc khối không chèn được thì chuyển lên dòng tên bảng.
+1. `kho/lessons/<bài>/notes.json`: mảng `{"line": n, "note": "(...)"}`. Gộp notes từ các file thẻ, bỏ trùng, bỏ mục sách đã nói, bỏ mục ngoài trẻ em, tối đa 1-2 chú thích mỗi dòng. Chú thích trong đúng một cặp ngoặc đơn, không ngoặc lồng, có mã S/C/N/R, mở đầu bằng tên người tạo nguồn nếu biết (`Giảng viên:`, `Ghi chú lớp:`, `Slide BS X:`). Dòng thuộc bảng hoặc khối không chèn được thì chuyển lên dòng tên bảng. Chú thích ở dòng có mâu thuẫn (điểm trong `conflicts`) thêm khóa `resolve`: một dòng `Kết luận theo <tên guideline năm>: ...` có mã nguồn, hoặc `Kết luận: Chưa thấy có nguồn hiệp hội/guideline xác nhận`; nội dung khớp kết luận trong `conflicts`. Chú thích có `resolve` không cần cụm "xem Mâu thuẫn nguồn".
 
 2. `kho/lessons/<bài>/extra.json`, giá trị là Markdown dùng `-`, `+`:
 - `summary`: Tóm tắt không quá 1 trang A4 (350-450 từ), chỉ tóm từ thân bài, có mã `[G1:pN]` cho số liệu, liều (N lấy từ dấu `<<pN>>` gần nhất phía trên dòng).

@@ -54,7 +54,7 @@ def check(lesson: str) -> list[dict]:
             in_block = False
         if in_block:
             continue
-        if FACT.search(line) and not CITE.search(line):
+        if FACT.search(line) and not CITE.search(line) and "Chưa thấy có nguồn" not in line:
             add("uncited_fact", n, line.strip())
         if "[?" in line:
             add("unresolved", n, line.strip())
