@@ -59,18 +59,23 @@ def apply_notes(body: str, notes: list[dict]) -> str:
         resolve = n.get("resolve")
         if resolve is not None and not (RESOLVE_OK.match(resolve) and (SOURCE.search(resolve) or UNCONFIRMED in resolve)):
             raise ValueError(f"Dòng {n['line']}: kết luận mâu thuẫn phải mở đầu 'Kết luận theo ...:' và có mã nguồn: {resolve}")
+    # Dòng có mâu thuẫn: mọi chú thích của dòng xuống dòng ⭐ thụt vào dưới ý, kết luận đặt cuối
+    conflict_lines = {n["line"] - 1 for n in notes if n.get("resolve")}
     stars: dict[int, list[str]] = {}
+    resolves: dict[int, list[str]] = {}
     for n in sorted(notes, key=lambda x: x["line"]):
         i = n["line"] - 1
-        if n.get("resolve"):  # chú thích mâu thuẫn: xuống dòng ⭐ thụt vào dưới ý, kèm kết luận
-            stars.setdefault(i, []).extend([n["note"], n["resolve"]])
+        if i in conflict_lines:
+            stars.setdefault(i, []).append(n["note"])
+            if n.get("resolve"):
+                resolves.setdefault(i, []).append(n["resolve"])
         else:
             lines[i] = _insert(lines[i], n["note"])
     out: list[str] = []
     for i, line in enumerate(lines):
         out.append(line)
         pad = " " * (len(line) - len(line.lstrip()) + 4)
-        out += [f"{pad}{STAR} {text}" for text in stars.get(i, [])]
+        out += [f"{pad}{STAR} {text}" for text in stars.get(i, []) + resolves.get(i, [])]
     return "\n".join(out)
 
 

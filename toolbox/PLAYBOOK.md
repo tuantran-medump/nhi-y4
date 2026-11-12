@@ -57,7 +57,7 @@ Mâu thuẫn là khi hai nguồn đưa ra chỉ định, liều, ngưỡng hoặ
        ⭐ Kết luận theo KDIGO 2025: albumin < 30 g/L, sách đúng [E16:p17]
    ```
 
-   Trong `notes.json`, chú thích mâu thuẫn có thêm khóa `resolve` chứa dòng kết luận; `b5_annotate.py apply` tự tạo 2 dòng ⭐. Dòng ⭐ không tính vào phần so khớp câu chữ sách.
+   Trong `notes.json`, chú thích mâu thuẫn có thêm khóa `resolve` chứa dòng kết luận; `b5_annotate.py apply` tự tạo các dòng ⭐. Dòng nào có mâu thuẫn thì mọi chú thích khác của dòng đó cũng xuống dòng ⭐, dòng kết luận đặt cuối. Dòng ⭐ không tính vào phần so khớp câu chữ sách.
 2. Mục "Mâu thuẫn nguồn" ở Phần B vẫn ghi bản đầy đủ: điểm lệch, từng nguồn nói gì, kết luận của hiệp hội trọng tài.
 3. Mỗi bài ưu tiên 1 hiệp hội, chốt trước khi soạn. Không có hoặc không đọc được guideline của hiệp hội đó thì được dùng guideline uy tín khác (ví dụ PIDS/IDSA, BTS, Bộ Y tế), ghi rõ tên. Mặc định:
 
