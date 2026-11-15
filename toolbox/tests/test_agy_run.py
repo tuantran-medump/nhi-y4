@@ -144,6 +144,10 @@ class TestSplitAndValidate(unittest.TestCase):
         self.assertEqual(len(parts), 3)
         self.assertEqual("\n".join(parts), text)
 
+    def test_split_evidence_strips_control_characters(self):
+        parts = agy_run.split_evidence("[S001:p1] a\x00b\x07c\tđ")
+        self.assertEqual(parts, ["[S001:p1] abc\tđ"])
+
     def test_split_evidence_untagged_line_follows_previous(self):
         text = "[S001:p1] a\n(viết tay) b\n[S002:p1] c"
         self.assertEqual(agy_run.split_evidence(text, max_lines=2), ["[S001:p1] a\n(viết tay) b", "[S002:p1] c"])

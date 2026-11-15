@@ -119,6 +119,7 @@ def ask_json(prompt: str, model: str, add_dirs: list[str], validate: Callable[[o
 
 VISION_OK = True  # thăm dò 2026-11-15: agy đọc được ảnh trang ở chế độ plan
 CODE_AT_START = re.compile(r"^\[([SCNRE]\d+):")
+CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 BATCH = 6
 PROMPTS = os.path.join(common.TOOLBOX, "templates", "prompts")
 EXTRA_KEYS = ("summary", "approach", "experience", "exam", "conflicts", "missing")
@@ -127,6 +128,8 @@ CARD_KEYS = ("notes", "conflicts", "approach", "experience", "exam")
 
 def split_evidence(text: str, max_lines: int = 400) -> list[str]:
     """Chia bằng chứng thành phần vừa một lượt gọi; mỗi nguồn nằm trọn một phần trừ khi riêng nó quá dài."""
+    # Ký tự NUL trong evidence.md làm công cụ đọc file của agy coi là file nhị phân (G1-B13)
+    text = CONTROL.sub("", text)
     groups: list[list[str]] = []
     code = None
     for line in text.split("\n"):
