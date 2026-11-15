@@ -26,7 +26,9 @@ HYDROGEN = "gemini-4-hydrogen-medium"
 SONNET = "claude-sonnet-5-5-medium"
 OPUS = "claude-opus-5-5-medium"
 # Thiếu câu này, chế độ plan của agy lập kế hoạch rồi chờ duyệt thay vì trả lời (thăm dò 2026-11-15)
-READ_ONLY_PREFIX = "Đây là câu hỏi chỉ đọc, KHÔNG lập kế hoạch, KHÔNG chờ duyệt, KHÔNG ghi file nào. "
+# Lệnh shell bị chế độ không tương tác tự từ chối và agy kết thúc với câu trả lời rỗng (chạy thử G2-B01)
+READ_ONLY_PREFIX = ("Đây là câu hỏi chỉ đọc, KHÔNG lập kế hoạch, KHÔNG chờ duyệt, KHÔNG ghi file nào, "
+                    "KHÔNG chạy lệnh shell, python hay script nào (kể cả để kiểm tra JSON); chỉ dùng công cụ đọc file. ")
 FENCE = re.compile(r"```(?:json)?\s*\n(.*?)\n```", re.S)
 
 
@@ -81,7 +83,11 @@ def call(prompt: str, model: str, add_dirs: list[str], timeout_s: int = 1200) ->
         raise AgyError(f"agy không trả JSON bọc ngoài: {res.stdout[:300]}") from e
     if wrapper.get("status") != "SUCCESS":
         raise AgyError(f"agy status {wrapper.get('status')}: {str(wrapper)[:300]}")
-    return wrapper.get("response") or ""
+    response = wrapper.get("response") or ""
+    if not response.strip() and wrapper.get("denied_actions"):
+        denied = ", ".join(d.get("display_name", d.get("action", "?")) for d in wrapper["denied_actions"])
+        raise AgyError(f"agy trả lời rỗng vì công cụ bị từ chối: {denied}")
+    return response
 
 
 def ask_json(prompt: str, model: str, add_dirs: list[str], validate: Callable[[object], list[str]],
@@ -419,7 +425,8 @@ def run(lesson: str, step_name: str, part: int | None = None, model: str | None 
         print(f"Bước {step_name} cần đọc ảnh mà agy chưa đọc được, làm theo luồng cũ")
         return 2
     parts = step.parts(lesson)
-    dirs = sorted({_lesson_path(lesson), PROMPTS} | {os.path.dirname(f) for p in parts for f in p.inputs})
+    # common.TOOLBOX để agy đọc được PLAYBOOK.md và data/ mà các prompt nhắc tới
+    dirs = sorted({_lesson_path(lesson), PROMPTS, common.TOOLBOX} | {os.path.dirname(f) for p in parts for f in p.inputs})
     done = 0
     for p in parts:
         if part is not None and p.index != part:

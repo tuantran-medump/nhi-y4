@@ -23,7 +23,10 @@ sys.stdout.reconfigure(encoding="utf-8")
 text = outs[min(len(calls) - 1, len(outs) - 1)]
 if "--output-format" in argv and argv[argv.index("--output-format") + 1] == "json":
     status = os.environ.get("FAKE_AGY_STATUS", "SUCCESS")
-    print(json.dumps({"status": status, "response": text}, ensure_ascii=False))
+    wrapper = {"status": status, "response": text}
+    if os.environ.get("FAKE_AGY_DENIED"):
+        wrapper["denied_actions"] = [{"action": "command", "display_name": "Bash"}]
+    print(json.dumps(wrapper, ensure_ascii=False))
 else:
     print(text)
 code = int(os.environ.get("FAKE_AGY_EXIT", "0"))

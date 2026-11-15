@@ -78,6 +78,18 @@ class TestCall(FakeAgy, unittest.TestCase):
         finally:
             os.environ.pop("FAKE_AGY_STATUS", None)
 
+    def test_call_empty_response_with_denied_action_raises_clear_error(self):
+        self.outputs("")
+        os.environ["FAKE_AGY_DENIED"] = "1"
+        try:
+            with self.assertRaisesRegex(agy_run.AgyError, "Bash"):
+                agy_run.call("x", agy_run.HYDROGEN, [self.tmp])
+        finally:
+            os.environ.pop("FAKE_AGY_DENIED", None)
+
+    def test_prefix_forbids_shell_commands(self):
+        self.assertIn("KHÔNG chạy lệnh", agy_run.READ_ONLY_PREFIX)
+
     def test_call_is_read_only_plan_mode_with_prefix(self):
         self.outputs("{}")
         agy_run.call("việc", agy_run.HYDROGEN, [self.tmp])
