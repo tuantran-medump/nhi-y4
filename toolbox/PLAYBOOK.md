@@ -141,7 +141,7 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 | B2b | Script tách câu và đánh số dòng. Agent chỉ phát bảng "dòng, cấp, ký hiệu, điểm tách". Script dựng danh sách rồi so khớp từng từ với bản B2 | Script và agy: `agy_run.py <bài> layout` (Hydrogen) |
 | B3 | Chốt danh sách nguồn tham khảo và phần viết tay cần đọc | Claude (tạm, chưa có định dạng JSON cho agy) |
 | B4 | Đọc ảnh có chọn lọc: viết tay ưu tiên Notes, CBL; trên slide chỉ tối đa vài file mỗi bài | agy: `agy_run.py <bài> ink` (Hydrogen) |
-| B5 | Rút thẻ bằng chứng, rồi soạn nháp chú thích ngoặc đơn (2.3) và Phần B | agy: `agy_run.py <bài> cards` (phần lẻ Hydrogen, phần chẵn Sonnet 5.5), rồi `agy_run.py <bài> compose` (Opus 5.5) |
+| B5 | Rút thẻ bằng chứng, rồi soạn nháp chú thích ngoặc đơn (2.3) và Phần B | agy: `agy_run.py <bài> cards` (Hydrogen medium), rồi `agy_run.py <bài> compose` (Hydrogen high) |
 | B6 | Xử lý mâu thuẫn theo 2.4: đọc **hết** `b6_pairs.py <bài>` (mọi dòng sách có chú thích, ⚑ là dòng agy báo), bắt cả điểm agy sót, viết `resolve`, tra guideline ngoài nếu cần | Claude Code |
 | B7 | Kiểm tra theo mục 7, dựng **cả 2 bản** PDF (`b7_render.py` và `b8_render_b14.py`), gắn link nếu đã có | Script và Claude |
 
@@ -150,7 +150,7 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 2. JSON sai cấu trúc thì script gọi lại 1 lần. agy lỗi hoặc hết hạn mức thì script dừng bước đó (mã thoát 1, ghi `kho/lessons/<bài>/agy/log.jsonl`). Claude báo người dùng, **không tự làm thay** bằng Claude.
 3. Chạy lại một bước sẽ bỏ qua phần đã có kết quả hợp lệ. Muốn làm lại thì thêm `--force`.
 4. `resolve` và mã E chỉ do Claude làm ở B6. agy không được tra web.
-5. Chọn model dựa trên bài thử ngày 2026-11-15 (bài HCTH, 59 chú thích chuẩn): Hydrogen trùng 44/59 trong 67 giây, Argon 42/59, Sonnet 47/59, gpt-6.1-sol 37/59 và báo thừa mâu thuẫn, Flash 33/59. Không dùng Codex trong giai đoạn B.
+5. Chọn model dựa trên bài thử ngày 2026-11-15 (bài HCTH, 59 chú thích chuẩn): Hydrogen trùng 44/59 trong 67 giây, Argon 42/59, Sonnet 47/59, gpt-6.1-sol 37/59 và báo thừa mâu thuẫn, Flash 33/59. Không dùng Codex trong giai đoạn B. Từ 2026-11-15 mọi bước agy dùng Hydrogen (người dùng quyết): Claude và GPT chạy qua agy có hạn mức rất thấp (Opus và Sonnet dùng chung một hạn mức, hết sau vài lượt), Hydrogen cho chất lượng đồng đều. Hạn mức tính riêng theo model, theo khung thời gian lăn.
 
 ### Giai đoạn C: Duyệt
 

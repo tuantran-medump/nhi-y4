@@ -23,6 +23,7 @@ from scripts.b2_ocr_fix import _digits  # noqa: E402
 from scripts.b5_annotate import NOTE_OK  # noqa: E402
 
 HYDROGEN = "gemini-4-hydrogen-medium"
+HYDROGEN_HIGH = "gemini-4-hydrogen-high"  # soạn nháp: gộp thẻ cần suy luận nhiều hơn
 SONNET = "claude-sonnet-5-5-medium"
 OPUS = "claude-opus-5-5-medium"
 # Thiếu câu này, chế độ plan của agy lập kế hoạch rồi chờ duyệt thay vì trả lời (thăm dò 2026-11-15)
@@ -208,14 +209,14 @@ def _notes_errors(notes: object, lesson: str) -> list[str]:
     return [e for n in notes for e in valid_note_errors(n, body)]
 
 
-# cards (B5a): phần lẻ Hydrogen, phần chẵn Sonnet, đều qua agy
+# cards (B5a): mọi phần dùng Hydrogen để chất lượng đồng đều (Claude/GPT trong agy có hạn mức thấp)
 def _cards_parts(lesson: str) -> list[Part]:
     chunks = split_evidence(common.read_text(_lesson_path(lesson, "evidence.md")))
     out = []
     for i, chunk in enumerate(chunks, 1):
         path = _lesson_path(lesson, "agy", f"evidence_{i}.md")
         common.write_text(path, chunk)
-        out.append(Part(i, len(chunks), HYDROGEN if i % 2 else SONNET, [_lesson_path(lesson, "body_numbered.txt"), path]))
+        out.append(Part(i, len(chunks), HYDROGEN, [_lesson_path(lesson, "body_numbered.txt"), path]))
     return out
 
 
@@ -231,7 +232,7 @@ def _cards_done(lesson: str, part: Part) -> bool:
     return os.path.exists(path) and not _cards_validate(common.read_json(path, None), lesson, part)
 
 
-# compose (B5b): Opus qua agy, không resolve, không tra web
+# compose (B5b): Hydrogen high, không resolve, không tra web
 def _compose_parts(lesson: str) -> list[Part]:
     info = next(r for r in common.read_csv(common.data_path("lessons.csv")) if r["lesson"] == lesson)
     folder = _lesson_path(lesson)
@@ -239,7 +240,7 @@ def _compose_parts(lesson: str) -> list[Part]:
     note = (f"Hiệp hội ưu tiên của bài: {info.get('society') or 'không có'}. Không thêm khóa resolve, không tra web, "
             "không sửa data/external_sources.csv, bỏ qua phần chạy lệnh kiểm tra. Trong conflicts, dòng kết luận "
             "ghi đúng `- Kết luận: (Claude quyết ở B6)`.")
-    return [Part(1, 1, OPUS, [_lesson_path(lesson, "body_numbered.txt"), *cards], note=note)]
+    return [Part(1, 1, HYDROGEN_HIGH, [_lesson_path(lesson, "body_numbered.txt"), *cards], note=note)]
 
 
 def _compose_validate(d: object, lesson: str, part: Part) -> list[str]:

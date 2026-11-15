@@ -184,11 +184,11 @@ class TestSteps(FakeAgy, unittest.TestCase):
         p = os.path.join(self.dir, "agy", "log.jsonl")
         return [json.loads(l) for l in open(p, encoding="utf-8")] if os.path.exists(p) else []
 
-    def test_cards_part_models_alternate(self):
+    def test_cards_parts_all_use_hydrogen(self):
         self.outputs(json.dumps(CARDS))
         self.assertEqual(agy_run.run(self.L, "cards"), 0)
         models = [r["model"] for r in self.log() if r["status"] == "ok"]
-        self.assertEqual(models, [agy_run.HYDROGEN, agy_run.SONNET])
+        self.assertEqual(models, [agy_run.HYDROGEN, agy_run.HYDROGEN])
         self.assertTrue(os.path.exists(os.path.join(self.dir, "cards_2.json")))
 
     def test_rerun_skips_valid_existing_part(self):
@@ -206,7 +206,7 @@ class TestSteps(FakeAgy, unittest.TestCase):
         self.assertEqual(agy_run.run(self.L, "compose"), 0)
         self.assertEqual(json.load(open(os.path.join(self.dir, "notes.json"), encoding="utf-8")), [NOTE])
         self.assertEqual(set(json.load(open(os.path.join(self.dir, "extra.json"), encoding="utf-8"))), set(extra))
-        self.assertEqual(self.log()[-1]["model"], agy_run.OPUS)
+        self.assertEqual(self.log()[-1]["model"], agy_run.HYDROGEN_HIGH)
 
     def test_agy_error_writes_nothing_and_logs(self):
         self.outputs(json.dumps(CARDS))
