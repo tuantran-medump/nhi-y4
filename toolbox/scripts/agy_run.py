@@ -253,11 +253,36 @@ def _compose_parts(lesson: str) -> list[Part]:
     return [Part(1, 1, HYDROGEN_HIGH, [_lesson_path(lesson, "body_numbered.txt"), *cards], note=note)]
 
 
+CITE_PAGES = re.compile(r"\[([SCNR]\d+):p([^\]]+)\]")
+DROP_TOLERANCE = 0.1  # bản nháp được bỏ tối đa 10% số trang nguồn có trong thẻ (thẻ sai, ngoài trẻ em)
+
+
+def _source_pages(text: str) -> set[str]:
+    out = set()
+    for code, pages in CITE_PAGES.findall(text):
+        for p in re.split(r"[,;\s]+p?", pages):
+            if p.strip():
+                out.add(f"{code}:p{p.strip().split('-')[0]}")
+    return out
+
+
+def _coverage_errors(d: object, card_files: list[str]) -> list[str]:
+    """Hydrogen gộp mạnh và làm rơi ý (G1-B11..B14 mất 17 chú thích); quá ngưỡng thì trả về làm lại."""
+    have = _source_pages(json.dumps(d, ensure_ascii=False))
+    need = set().union(*(_source_pages(common.read_text(f)) for f in card_files)) if card_files else set()
+    lost = sorted(need - have)
+    if need and len(lost) > DROP_TOLERANCE * len(need):
+        return [f"bản nháp bỏ mất ý từ {len(lost)}/{len(need)} trang nguồn trong thẻ, phải giữ lại (gộp vào chú thích "
+                f"hoặc Phần B): " + ", ".join(lost[:20])]
+    return []
+
+
 def _compose_validate(d: object, lesson: str, part: Part) -> list[str]:
     if not isinstance(d, dict) or not isinstance(d.get("extra"), dict):
         return ["phải là object có notes (mảng) và extra (object)"]
     errs = [f"extra thiếu hoặc sai khóa {k} (chuỗi)" for k in EXTRA_KEYS if not isinstance(d["extra"].get(k), str)]
-    return errs + _notes_errors(d.get("notes"), lesson) + _unknown_codes(d, part.inputs[1:])
+    return (errs + _notes_errors(d.get("notes"), lesson) + _unknown_codes(d, part.inputs[1:])
+            + _coverage_errors(d, part.inputs[1:]))
 
 
 def _compose_write(lesson: str, part: Part, d: dict) -> None:
