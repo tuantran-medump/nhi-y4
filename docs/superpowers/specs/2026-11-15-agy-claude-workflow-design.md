@@ -100,7 +100,7 @@ Codex có thể nhận việc hình ảnh không đụng thân bài: sơ đồ m
   - Đọc ảnh trang: được (`VISION_OK = True`), 3 dòng đầu trang p0203 khớp `fixed.txt`. Điều kiện: prompt phải mở đầu bằng "Đây là câu hỏi chỉ đọc, KHÔNG lập kế hoạch, KHÔNG chờ duyệt". Thiếu câu này thì ở chế độ plan agy viết kế hoạch vào thư mục riêng của nó (`~/.gemini/antigravity-cli/brain/`) rồi chờ duyệt, không trả lời.
   - Model sai tên: mã thoát 1, stderr `error: invalid model selection ...`.
   - Quá `--print-timeout`: mã thoát 3, stderr có dòng `AGY_ERROR: {"status":"DEADLINE_EXCEEDED","reason":"print_timeout",...}`, và stdout vẫn có **phần trả lời dở**. Vì vậy phải xét mã thoát trước, không được tách JSON từ stdout khi mã thoát khác 0.
-  - Lỗi hết hạn mức chưa tái hiện được. Coi mọi mã thoát khác 0 hoặc dòng `AGY_ERROR:` là lỗi.
+  - Lỗi hết hạn mức (gặp thật ngày 2026-11-15, bài G1-B13 phần 6/9, model Sonnet 5.5 qua agy, sau khoảng 8 phút gọi liên tục trong ngày): mã thoát 3, stderr `error: Individual quota reached ... Resets in 3h33m28s.` và `AGY_ERROR: {"status":"RESOURCE_EXHAUSTED","error_code":429,"retryable":true,...}`. `agy_run.py` dừng đúng như thiết kế.
 
 ## Để người dựng quyết
 
