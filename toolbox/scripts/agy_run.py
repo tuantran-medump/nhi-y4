@@ -63,7 +63,7 @@ def _cmd() -> list[str]:
 
 def call(prompt: str, model: str, add_dirs: list[str], timeout_s: int = 1200) -> str:
     args = _cmd() + ["-p", READ_ONLY_PREFIX + prompt, "--mode", "plan", "--model", model,
-                     "--print-timeout", f"{timeout_s}s"]
+                     "--print-timeout", f"{timeout_s}s", "--output-format", "json"]
     for d in add_dirs:
         args += ["--add-dir", d]
     try:
@@ -74,7 +74,14 @@ def call(prompt: str, model: str, add_dirs: list[str], timeout_s: int = 1200) ->
     # Quá --print-timeout agy vẫn in phần trả lời dở, nên mã thoát phải xét trước
     if res.returncode != 0 or "AGY_ERROR:" in (res.stderr or ""):
         raise AgyError(f"agy thoát mã {res.returncode}: {(res.stderr or '')[-500:]}")
-    return res.stdout
+    # --output-format json: {"status": "SUCCESS", "response": "..."}; ở dạng chữ thô agy có lúc in rỗng
+    try:
+        wrapper = json.loads(res.stdout)
+    except json.JSONDecodeError as e:
+        raise AgyError(f"agy không trả JSON bọc ngoài: {res.stdout[:300]}") from e
+    if wrapper.get("status") != "SUCCESS":
+        raise AgyError(f"agy status {wrapper.get('status')}: {str(wrapper)[:300]}")
+    return wrapper.get("response") or ""
 
 
 def ask_json(prompt: str, model: str, add_dirs: list[str], validate: Callable[[object], list[str]],
@@ -241,10 +248,14 @@ def _layout_validate(d: object, lesson: str, part: Part) -> list[str]:
 def _batch_parts(tasks_path: str, base_dir: str) -> list[Part]:
     raw = common.read_json(tasks_path, [])
     tasks = raw.get("tasks", []) if isinstance(raw, dict) else raw
-    ids = [t["id"] for t in tasks]
-    lots = [ids[i:i + BATCH] for i in range(0, len(ids), BATCH)]
-    return [Part(i, len(lots), HYDROGEN, [tasks_path, base_dir], ids=lot, note="Chỉ làm các id: " + ", ".join(lot))
-            for i, lot in enumerate(lots, 1)]
+    lots = [tasks[i:i + BATCH] for i in range(0, len(tasks), BATCH)]
+    parts = []
+    for i, lot in enumerate(lots, 1):
+        # Liệt kê từng file ảnh, chữ: chỉ đưa thư mục thì agy có lúc kết thúc mà không trả lời (chạy thử G2-B01)
+        files = [os.path.join(base_dir, t[k]) for t in lot for k in ("image", "text") if t.get(k)]
+        ids = [t["id"] for t in lot]
+        parts.append(Part(i, len(lots), HYDROGEN, [tasks_path, *files], ids=ids, note="Chỉ làm các id: " + ", ".join(ids)))
+    return parts
 
 
 def _batch_validate(value_errors: Callable[[str, str, object], list[str]]) -> Callable[[object, str, Part], list[str]]:

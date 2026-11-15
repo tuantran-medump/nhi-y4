@@ -68,6 +68,16 @@ class TestCall(FakeAgy, unittest.TestCase):
         with self.assertRaises(agy_run.AgyError):
             agy_run.call("x", agy_run.HYDROGEN, [self.tmp], timeout_s=1)
 
+    def test_call_returns_response_and_rejects_non_success_status(self):
+        self.outputs('{"a": 1}')
+        self.assertEqual(agy_run.call("x", agy_run.HYDROGEN, [self.tmp]).strip(), '{"a": 1}')
+        os.environ["FAKE_AGY_STATUS"] = "ERROR"
+        try:
+            with self.assertRaises(agy_run.AgyError):
+                agy_run.call("x", agy_run.HYDROGEN, [self.tmp])
+        finally:
+            os.environ.pop("FAKE_AGY_STATUS", None)
+
     def test_call_is_read_only_plan_mode_with_prefix(self):
         self.outputs("{}")
         agy_run.call("việc", agy_run.HYDROGEN, [self.tmp])
@@ -195,6 +205,12 @@ class TestSteps(FakeAgy, unittest.TestCase):
         self.outputs(json.dumps({"p0010": [{"line": 2, "old": "chân", "new": "chẩn"}], "p0011": []}))
         self.assertEqual(agy_run.run(self.L, "review"), 0)
         self.assertEqual(json.load(open(os.path.join(rv, "results", "p0011.json"), encoding="utf-8")), [])
+
+    def test_review_part_lists_each_image_and_text_file(self):
+        rv = self._review_tasks()
+        part = agy_run.STEPS["review"].parts(self.L)[0]
+        for name in ("p0010.png", "p0010.txt", "p0011.png", "p0011.txt"):
+            self.assertIn(os.path.join(rv, name), part.inputs)
 
     def test_review_item_with_bad_line_old_or_unverified_digit_rejected(self):
         self._review_tasks()

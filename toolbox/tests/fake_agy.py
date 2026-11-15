@@ -20,7 +20,12 @@ with open(state_path, "w", encoding="utf-8") as f:
 time.sleep(float(os.environ.get("FAKE_AGY_SLEEP", "0")))
 outs = json.loads(os.environ.get("FAKE_AGY_OUT", '[""]'))
 sys.stdout.reconfigure(encoding="utf-8")
-print(outs[min(len(calls) - 1, len(outs) - 1)])
+text = outs[min(len(calls) - 1, len(outs) - 1)]
+if "--output-format" in argv and argv[argv.index("--output-format") + 1] == "json":
+    status = os.environ.get("FAKE_AGY_STATUS", "SUCCESS")
+    print(json.dumps({"status": status, "response": text}, ensure_ascii=False))
+else:
+    print(text)
 code = int(os.environ.get("FAKE_AGY_EXIT", "0"))
 if code:
     print("AGY_ERROR: {\"status\":\"FAKE\"}", file=sys.stderr)
