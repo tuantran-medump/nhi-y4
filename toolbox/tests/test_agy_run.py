@@ -209,16 +209,16 @@ class TestSteps(FakeAgy, unittest.TestCase):
         self.assertEqual(agy_run.STEPS["compose"].validate({"notes": [NOTE], "extra": extra}, self.L, part), [])
 
     def test_compose_dropping_too_many_card_pages_rejected(self):
-        cards = {**CARDS, "notes": [{"line": 3, "note": f"(Slide: ý {i} [S088:p{i}])"} for i in range(1, 11)]}
+        cards = {**CARDS, "notes": [{"line": 3, "note": f"(Slide: ý {i} [S088:p{i}])"} for i in range(1, 21)]}
         with open(os.path.join(self.dir, "cards_1.json"), "w", encoding="utf-8") as f:
             json.dump(cards, f)
         part = agy_run.STEPS["compose"].parts(self.L)[0]
         extra = {k: "" for k in ("summary", "approach", "experience", "exam", "conflicts", "missing")}
         keep = lambda n: {"notes": [{"line": 3, "note": "(Slide: " + "; ".join(f"ý {i} [S088:p{i}]" for i in range(1, n + 1)) + ")"}],
                           "extra": extra}
-        errs = agy_run.STEPS["compose"].validate(keep(5), self.L, part)
-        self.assertTrue(any("S088:p6" in e for e in errs), errs)
-        self.assertEqual(agy_run.STEPS["compose"].validate(keep(9), self.L, part), [])  # bỏ 1/10 vẫn cho qua
+        errs = agy_run.STEPS["compose"].validate(keep(18), self.L, part)  # bỏ 2/20 = 10% là quá ngưỡng 5%
+        self.assertTrue(any("S088:p19" in e for e in errs), errs)
+        self.assertEqual(agy_run.STEPS["compose"].validate(keep(19), self.L, part), [])  # bỏ 1/20 = 5% vẫn cho qua
 
     def test_rerun_skips_valid_existing_part(self):
         self.outputs(json.dumps(CARDS))

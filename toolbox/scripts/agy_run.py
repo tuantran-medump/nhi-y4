@@ -254,7 +254,7 @@ def _compose_parts(lesson: str) -> list[Part]:
 
 
 CITE_PAGES = re.compile(r"\[([SCNR]\d+):p([^\]]+)\]")
-DROP_TOLERANCE = 0.1  # bản nháp được bỏ tối đa 10% số trang nguồn có trong thẻ (thẻ sai, ngoài trẻ em)
+DROP_TOLERANCE = 0.05  # bản nháp được bỏ tối đa 5% số trang nguồn có trong thẻ (thẻ sai, ngoài trẻ em); người dùng chọn 5%
 
 
 def _source_pages(text: str) -> set[str]:
