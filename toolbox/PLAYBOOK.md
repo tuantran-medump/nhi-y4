@@ -142,7 +142,7 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 | B3 | Chốt danh sách nguồn tham khảo và phần viết tay cần đọc | Claude (tạm, chưa có định dạng JSON cho agy) |
 | B4 | Đọc ảnh có chọn lọc: viết tay ưu tiên Notes, CBL; trên slide chỉ tối đa vài file mỗi bài | agy: `agy_run.py <bài> ink` (Hydrogen) |
 | B5 | Rút thẻ bằng chứng, rồi soạn nháp chú thích ngoặc đơn (2.3) và Phần B | agy: `agy_run.py <bài> cards` (Hydrogen medium), rồi `agy_run.py <bài> compose` (Hydrogen high) |
-| B6 | Xử lý mâu thuẫn theo 2.4: đọc **hết** `b6_pairs.py <bài>` (mọi dòng sách có chú thích, ⚑ là dòng agy báo), bắt cả điểm agy sót, viết `resolve`, tra guideline ngoài nếu cần | Claude Code |
+| B6 | Xử lý mâu thuẫn theo 2.4: đọc **hết** `b6_pairs.py <bài>` (mọi dòng sách có chú thích, ⚑ là dòng agy báo), bắt cả điểm agy sót, viết `resolve`, tra guideline ngoài nếu cần; xem mục "Trang bằng chứng chưa có trong thẻ" để thêm ý agy bỏ sót ngay từ bước rút thẻ | Claude Code |
 | B7 | Kiểm tra theo mục 7, dựng **cả 2 bản** PDF (`b7_render.py` và `b8_render_b14.py`), gắn link nếu đã có | Script và Claude |
 
 **Quy tắc agy** (Antigravity, gói Google AI Pro, áp dụng từ lô Tiêu hóa - Dinh dưỡng):

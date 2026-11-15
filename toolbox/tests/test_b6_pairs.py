@@ -18,6 +18,17 @@ class TestPairs(unittest.TestCase):
         self.assertIn("L7 ⚑ dòng 7", out)
         self.assertIn("(chưa có chú thích)", out)
 
+    def test_uncarded_pages_ranked_by_clinical_signal(self):
+        evidence = ("[S1:p1] liều 10 mg/kg/ngày trong 7 ngày\n"
+                    "[S1:p2] câu chung chung\n"
+                    "[S2:p5] độ nhạy 93%, độ đặc hiệu 95%\n"
+                    "[S2:p5] chữ khác\n"
+                    "[S3:p9] tiên lượng tốt, tái phát 10%")
+        out = b6_pairs.uncarded_pages(evidence, "(x [S3:p9])", limit=2)
+        # S2:p5 (2 số % + 2 từ = 6 điểm) trên S1:p1 (2 số có đơn vị + "liều" = 5); S3:p9 đã có trong thẻ, S1:p2 không có tín hiệu
+        self.assertEqual([p for p, _, _ in out], ["S2:p5", "S1:p1"])
+        self.assertEqual(out[0][2], "độ nhạy 93%, độ đặc hiệu 95%")  # câu có điểm cao nhất của trang
+
     def test_conflict_line_flagged(self):
         out = b6_pairs.pairs(BODY, NOTES, {9})
         self.assertIn("L9 ⚑ dòng 9", out)
