@@ -82,5 +82,102 @@ class TestCall(FakeAgy, unittest.TestCase):
         self.assertEqual(len(self.calls()), 2)
 
 
+BODY = "1\t<<p10>>\n2\t## Bài 1. BỆNH\n3\t- Điều trị 5 ngày.\n4\t\n5\t| a | b |\n6\t- Liều 2 mg/kg."
+NOTE = {"line": 3, "note": "(Slide: 3 ngày [S088:p4])"}
+CARDS = {"notes": [NOTE], "conflicts": [], "approach": [], "experience": [], "exam": []}
+
+
+class TestSplitAndValidate(unittest.TestCase):
+    def test_split_evidence_groups_by_source(self):
+        text = "\n".join(f"[S{c}:p1] câu {i}" for c in ("001", "002", "003") for i in range(150))
+        parts = agy_run.split_evidence(text, max_lines=400)
+        self.assertEqual(len(parts), 2)
+        for p in parts:
+            codes = [l[1:5] for l in p.split("\n")]
+            self.assertTrue(all(codes.count(c) in (0, 150) for c in ("S001", "S002", "S003")))
+
+    def test_split_evidence_oversize_source_splits_at_line(self):
+        text = "\n".join(f"[S001:p1] câu {i}" for i in range(900))
+        parts = agy_run.split_evidence(text, max_lines=400)
+        self.assertEqual(len(parts), 3)
+        self.assertEqual("\n".join(parts), text)
+
+    def test_split_evidence_untagged_line_follows_previous(self):
+        text = "[S001:p1] a\n(viết tay) b\n[S002:p1] c"
+        self.assertEqual(agy_run.split_evidence(text, max_lines=2), ["[S001:p1] a\n(viết tay) b", "[S002:p1] c"])
+
+    def test_note_on_blank_marker_or_table_line_rejected(self):
+        body = agy_run.body_lines(BODY)
+        for line in (1, 4, 5):
+            self.assertTrue(agy_run.valid_note_errors({**NOTE, "line": line}, body), line)
+        self.assertEqual(agy_run.valid_note_errors(NOTE, body), [])
+
+    def test_note_with_resolve_rejected(self):
+        bad = {**NOTE, "resolve": "Kết luận theo X: y [E1:p1]"}
+        self.assertTrue(agy_run.valid_note_errors(bad, agy_run.body_lines(BODY)))
+
+
+class TestSteps(FakeAgy, unittest.TestCase):
+    L = "G9-B01"
+
+    def setUp(self):
+        super().setUp()
+        os.environ["NHI_TOOLBOX_HOME"] = self.tmp
+        self.dir = os.path.join(self.tmp, "kho", "lessons", self.L)
+        os.makedirs(self.dir)
+        with open(os.path.join(self.dir, "body_numbered.txt"), "w", encoding="utf-8") as f:
+            f.write(BODY)
+        ev = "\n".join(f"[S{c}:p1] câu {i}" for c in ("088", "091") for i in range(300))
+        with open(os.path.join(self.dir, "evidence.md"), "w", encoding="utf-8") as f:
+            f.write(ev)
+        os.makedirs(os.path.join(self.tmp, "data"))
+        with open(os.path.join(self.tmp, "data", "lessons.csv"), "w", encoding="utf-8") as f:
+            f.write("lesson,book,title,start_printed,society,group\nG9-B01,G9,Bệnh,1,KDIGO 2025,Thận\n")
+
+    def log(self):
+        p = os.path.join(self.dir, "agy", "log.jsonl")
+        return [json.loads(l) for l in open(p, encoding="utf-8")] if os.path.exists(p) else []
+
+    def test_cards_part_models_alternate(self):
+        self.outputs(json.dumps(CARDS))
+        self.assertEqual(agy_run.run(self.L, "cards"), 0)
+        models = [r["model"] for r in self.log() if r["status"] == "ok"]
+        self.assertEqual(models, [agy_run.HYDROGEN, agy_run.SONNET])
+        self.assertTrue(os.path.exists(os.path.join(self.dir, "cards_2.json")))
+
+    def test_rerun_skips_valid_existing_part(self):
+        self.outputs(json.dumps(CARDS))
+        agy_run.run(self.L, "cards")
+        n = len(self.calls())
+        agy_run.run(self.L, "cards")
+        self.assertEqual(len(self.calls()), n)
+        agy_run.run(self.L, "cards", part=1, force=True)
+        self.assertEqual(len(self.calls()), n + 1)
+
+    def test_compose_writes_notes_and_extra(self):
+        extra = {k: "" for k in ("summary", "approach", "experience", "exam", "conflicts", "missing")}
+        self.outputs(json.dumps({"notes": [NOTE], "extra": extra}))
+        self.assertEqual(agy_run.run(self.L, "compose"), 0)
+        self.assertEqual(json.load(open(os.path.join(self.dir, "notes.json"), encoding="utf-8")), [NOTE])
+        self.assertEqual(set(json.load(open(os.path.join(self.dir, "extra.json"), encoding="utf-8"))), set(extra))
+        self.assertEqual(self.log()[-1]["model"], agy_run.OPUS)
+
+    def test_agy_error_writes_nothing_and_logs(self):
+        self.outputs(json.dumps(CARDS))
+        os.environ["FAKE_AGY_EXIT"] = "1"
+        self.assertNotEqual(agy_run.run(self.L, "cards"), 0)
+        self.assertFalse(os.path.exists(os.path.join(self.dir, "cards_1.json")))
+        self.assertEqual(self.log()[-1]["status"], "error")
+
+    def test_review_batch_writes_one_result_per_id(self):
+        rv = os.path.join(self.dir, "review")
+        os.makedirs(rv)
+        with open(os.path.join(rv, "tasks.json"), "w", encoding="utf-8") as f:
+            json.dump([{"id": "p0010", "image": "p0010.png"}, {"id": "p0011", "image": "p0011.png"}], f)
+        self.outputs(json.dumps({"p0010": [{"line": 2, "old": "a", "new": "b"}], "p0011": []}))
+        self.assertEqual(agy_run.run(self.L, "review"), 0)
+        self.assertEqual(json.load(open(os.path.join(rv, "results", "p0011.json"), encoding="utf-8")), [])
+
+
 if __name__ == "__main__":
     unittest.main()
