@@ -95,7 +95,12 @@ Codex có thể nhận việc hình ảnh không đụng thân bài: sơ đồ m
 - **Quota:** chưa biết hạn mức cụ thể. Nhận biết lỗi bằng mã thoát khác 0 hoặc stdout không có JSON. Việc đầu tiên của kế hoạch là một lần chạy thăm dò để ghi lại dạng lỗi thật.
 - **Sổ tiến độ:** chỉ thêm khóa mới vào `progress.json`, không đổi khóa cũ. Người dựng kiểm tra những script đang đọc file này.
 - **Mốc so sánh:** lô Thận không ghi số lượt Claude. Mốc là chất lượng so với G1-B15 (cùng cỡ) và cảm nhận hạn mức của người dùng (`/usage` trước và sau bài thử).
-- **Việc đầu tiên của kế hoạch:** thăm dò agy ở `--mode plan` có đọc được ảnh trang và file trong `kho/` hay không, rồi mới quyết B2 và B4.
+- **Kết quả thăm dò agy (2026-11-15, Hydrogen medium, `--mode plan`):**
+  - Đọc file trong `kho/` qua `--add-dir`: được, chép đúng dòng.
+  - Đọc ảnh trang: được (`VISION_OK = True`), 3 dòng đầu trang p0203 khớp `fixed.txt`. Điều kiện: prompt phải mở đầu bằng "Đây là câu hỏi chỉ đọc, KHÔNG lập kế hoạch, KHÔNG chờ duyệt". Thiếu câu này thì ở chế độ plan agy viết kế hoạch vào thư mục riêng của nó (`~/.gemini/antigravity-cli/brain/`) rồi chờ duyệt, không trả lời.
+  - Model sai tên: mã thoát 1, stderr `error: invalid model selection ...`.
+  - Quá `--print-timeout`: mã thoát 3, stderr có dòng `AGY_ERROR: {"status":"DEADLINE_EXCEEDED","reason":"print_timeout",...}`, và stdout vẫn có **phần trả lời dở**. Vì vậy phải xét mã thoát trước, không được tách JSON từ stdout khi mã thoát khác 0.
+  - Lỗi hết hạn mức chưa tái hiện được. Coi mọi mã thoát khác 0 hoặc dòng `AGY_ERROR:` là lỗi.
 
 ## Để người dựng quyết
 
