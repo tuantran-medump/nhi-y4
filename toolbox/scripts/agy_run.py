@@ -314,6 +314,58 @@ def _batch_done(results_dir: Callable[[str], str]) -> Callable[[str, Part], bool
     return lambda lesson, part: all(os.path.exists(os.path.join(results_dir(lesson), f"{k}.json")) for k in part.ids)
 
 
+# blocks (B2): gõ lại bảng, lưu đồ; hình thì agy chỉ báo vùng cắt, script cắt
+BLOCK_ID = re.compile(r"^<<block:([\w-]+)>>$", re.M)
+
+
+def crop_block(lesson: str, page: int, box: list[float], name: str) -> None:
+    from scripts import crop_fig
+    book = next(r for r in common.read_csv(common.data_path("lessons.csv")) if r["lesson"] == lesson)["book"]
+    row = next(r for r in common.read_csv(common.data_path("manifest.csv")) if r["code"] == book)
+    crop_fig.crop(os.path.join(common.load_config()["source_root"], "Tài liệu", row["path"]), lesson, page, tuple(box), name)
+
+
+def _block_page(_id: str) -> int:
+    return int(re.match(r"p(\d+)", _id).group(1))
+
+
+def _blocks_parts(lesson: str) -> list[Part]:
+    ids = BLOCK_ID.findall(common.read_text(_lesson_path(lesson, "fixed.txt")))
+    lots = [ids[i:i + BATCH] for i in range(0, len(ids), BATCH)]
+    note = ("Mỗi id là một khối <<block:ID>> trong fixed.txt. Trả {ID: {\"md\": \"...\", \"crop\": [x0, y0, x1, y1] hoặc null}}. "
+            "Không chạy crop_fig.py: khối cần cắt hình thì ghi vùng cắt vào crop (tỉ lệ 0-1 của trang), md có dòng "
+            "![Hình](fig/<ID>.png); script sẽ cắt. Bảng thì crop là null. Chỉ làm các id: ")
+    return [Part(i, len(lots), HYDROGEN,
+                 [_lesson_path(lesson, "fixed.txt"), *sorted({_lesson_path(lesson, "review", f"p{_block_page(b):04d}.png") for b in lot})],
+                 ids=lot, note=note + ", ".join(lot)) for i, lot in enumerate(lots, 1)]
+
+
+def _block_value(lesson: str, _id: str, v: object) -> list[str]:
+    if not isinstance(v, dict) or not isinstance(v.get("md"), str) or not v["md"].strip():
+        return [f"{_id}: phải là object có md (chuỗi khác rỗng)"]
+    crop = v.get("crop")
+    figure = _id.endswith("f")
+    if crop is None:
+        return [f"{_id}: khối hình phải có crop"] if figure else []
+    ok = isinstance(crop, list) and len(crop) == 4 and all(isinstance(x, (int, float)) and 0 <= x <= 1 for x in crop)
+    if not ok or crop[0] >= crop[2] or crop[1] >= crop[3]:
+        return [f"{_id}: crop phải là [x0, y0, x1, y1] tỉ lệ 0-1, x0<x1, y0<y1"]
+    if f"![Hình](fig/{_id}.png)" not in v["md"]:
+        return [f"{_id}: có crop thì md phải có ![Hình](fig/{_id}.png)"]
+    return []
+
+
+def _blocks_write(lesson: str, part: Part, d: dict) -> None:
+    for k in part.ids:
+        if d[k].get("crop"):
+            crop_block(lesson, _block_page(k), d[k]["crop"], k)
+        common.write_text(_lesson_path(lesson, "blocks", f"{k}.md"), d[k]["md"].rstrip() + "\n")
+
+
+def _blocks_done(lesson: str, part: Part) -> bool:
+    return all(os.path.exists(_lesson_path(lesson, "blocks", f"{k}.md")) for k in part.ids)
+
+
 def _write_json_to(name: str) -> Callable[[str, Part, object], None]:
     return lambda lesson, part, d: common.write_json(_lesson_path(lesson, name), d)
 
@@ -339,6 +391,8 @@ STEPS: dict[str, Step] = {
     "review": Step("B2", "ocr_fix.md", '{"<id>": [{"line": n, "old": "...", "new": "..."}], ...}',
                    lambda lesson: _batch_parts(_lesson_path(lesson, "review", "tasks.json"), _lesson_path(lesson, "review")),
                    _batch_validate(_review_value), _batch_write(_review_dir), _batch_done(_review_dir), vision=True),
+    "blocks": Step("B2", "blocks.md", '{"<ID>": {"md": "| A | B |\\n|---|---|", "crop": null}, ...}',
+                   _blocks_parts, _batch_validate(_block_value), _blocks_write, _blocks_done, vision=True),
     "ink": Step("B4", "read_ink.md", '{"<id>": {"1": "nội dung", ...}, ...}',
                 lambda lesson: _batch_parts(common.kho_path("ink", lesson, "tasks.json"), common.kho_path("ink", lesson)),
                 _batch_validate(_ink_value), _batch_write(_ink_dir), _batch_done(_ink_dir), vision=True),

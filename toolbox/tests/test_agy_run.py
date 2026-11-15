@@ -223,6 +223,37 @@ class TestSteps(FakeAgy, unittest.TestCase):
                                                                          os.path.join(self.dir, "review"))[0])
             self.assertTrue(errs, item)
 
+    def _blocks(self):
+        with open(os.path.join(self.dir, "fixed.txt"), "w", encoding="utf-8") as f:
+            f.write("<<p10>>\n<<block:p0010a>>\nbảng\n<<endblock>>\n<<block:p0010f>>\nhình\n<<endblock>>")
+        os.makedirs(os.path.join(self.dir, "review"), exist_ok=True)
+
+    def test_blocks_writes_md_and_crops_figures(self):
+        self._blocks()
+        crops = []
+        old = agy_run.crop_block
+        agy_run.crop_block = lambda lesson, page, box, name: crops.append((page, tuple(box), name))
+        try:
+            self.outputs(json.dumps({"p0010a": {"md": "| A | B |\n|---|---|\n| 1 | 2 |", "crop": None},
+                                     "p0010f": {"md": "![Hình](fig/p0010f.png)", "crop": [0.1, 0.2, 0.9, 0.6]}}))
+            self.assertEqual(agy_run.run(self.L, "blocks"), 0)
+        finally:
+            agy_run.crop_block = old
+        self.assertEqual(crops, [(10, (0.1, 0.2, 0.9, 0.6), "p0010f")])
+        md = open(os.path.join(self.dir, "blocks", "p0010a.md"), encoding="utf-8").read()
+        self.assertIn("|---|", md)
+        part = agy_run.STEPS["blocks"].parts(self.L)[0]
+        self.assertIn(os.path.join(self.dir, "review", "p0010.png"), part.inputs)
+
+    def test_blocks_figure_needs_valid_crop(self):
+        self._blocks()
+        part = agy_run.STEPS["blocks"].parts(self.L)[0]
+        table = {"md": "| A |\n|---|", "crop": None}
+        for fig in ({"md": "![Hình](fig/p0010f.png)", "crop": None},
+                    {"md": "![Hình](fig/p0010f.png)", "crop": [0.9, 0.2, 0.1, 0.6]},
+                    {"md": "chữ", "crop": [0.1, 0.2, 0.9, 0.6]}):
+            self.assertTrue(agy_run.STEPS["blocks"].validate({"p0010a": table, "p0010f": fig}, self.L, part), fig)
+
     def test_run_does_not_mark_progress_steps_done(self):
         self.outputs(json.dumps(CARDS))
         agy_run.run(self.L, "cards")
