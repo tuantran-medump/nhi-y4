@@ -158,6 +158,10 @@ class TestSplitAndValidate(unittest.TestCase):
             self.assertTrue(agy_run.valid_note_errors({**NOTE, "line": line}, body), line)
         self.assertEqual(agy_run.valid_note_errors(NOTE, body), [])
 
+    def test_source_pages_handles_several_codes_in_one_bracket(self):
+        got = agy_run._source_pages("(x [C029:p24, C030:p2][S107:p13,p16][S088:p70-72])")
+        self.assertEqual(got, {"C029:p24", "C030:p2", "S107:p13", "S107:p16", "S088:p70"})
+
     def test_note_with_resolve_rejected(self):
         bad = {**NOTE, "resolve": "Kết luận theo X: y [E1:p1]"}
         self.assertTrue(agy_run.valid_note_errors(bad, agy_run.body_lines(BODY)))

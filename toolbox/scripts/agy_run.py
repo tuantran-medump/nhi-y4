@@ -253,16 +253,23 @@ def _compose_parts(lesson: str) -> list[Part]:
     return [Part(1, 1, HYDROGEN_HIGH, [_lesson_path(lesson, "body_numbered.txt"), *cards], note=note)]
 
 
-CITE_PAGES = re.compile(r"\[([SCNR]\d+):p([^\]]+)\]")
 DROP_TOLERANCE = 0.05  # bản nháp được bỏ tối đa 5% số trang nguồn có trong thẻ (thẻ sai, ngoài trẻ em); người dùng chọn 5%
 
 
 def _source_pages(text: str) -> set[str]:
+    """Mọi cặp mã:trang trong trích dẫn, kể cả nhiều mã trong một ngoặc ([C029:p24, C030:p2]) và p13,p16."""
     out = set()
-    for code, pages in CITE_PAGES.findall(text):
-        for p in re.split(r"[,;\s]+p?", pages):
-            if p.strip():
-                out.add(f"{code}:p{p.strip().split('-')[0]}")
+    for bracket in re.findall(r"\[([^\[\]]*:p[^\[\]]*)\]", text):
+        code = None
+        for tok in re.split(r"[,;\s]+", bracket):
+            m = re.fullmatch(r"([SCNR]\d+):p(\d+)(?:-\d+)?", tok)
+            if m:
+                code = m.group(1)
+                out.add(f"{code}:p{m.group(2)}")
+                continue
+            m = re.fullmatch(r"p?(\d+)(?:-\d+)?", tok)
+            if m and code:
+                out.add(f"{code}:p{m.group(1)}")
     return out
 
 
