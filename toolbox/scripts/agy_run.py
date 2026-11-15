@@ -36,6 +36,10 @@ class AgyError(RuntimeError):
     pass
 
 
+class DeniedToolError(AgyError):
+    """agy gọi công cụ bị chế độ không tương tác từ chối và trả lời rỗng; đáng gọi lại một lần."""
+
+
 def extract_json(text: str) -> object:
     """Lấy đối tượng hoặc mảng JSON trong stdout (có thể bọc ```json hoặc kèm lời dẫn)."""
     decoder = json.JSONDecoder()
@@ -86,7 +90,7 @@ def call(prompt: str, model: str, add_dirs: list[str], timeout_s: int = 1200) ->
     response = wrapper.get("response") or ""
     if not response.strip() and wrapper.get("denied_actions"):
         denied = ", ".join(d.get("display_name", d.get("action", "?")) for d in wrapper["denied_actions"])
-        raise AgyError(f"agy trả lời rỗng vì công cụ bị từ chối: {denied}")
+        raise DeniedToolError(f"agy trả lời rỗng vì công cụ bị từ chối: {denied}")
     return response
 
 
@@ -95,7 +99,11 @@ def ask_json(prompt: str, model: str, add_dirs: list[str], validate: Callable[[o
     errors: list[str] = []
     for attempt in range(2):
         text = prompt if attempt == 0 else prompt + "\n\nLần trước sai:\n- " + "\n- ".join(errors)
-        out = call(text, model, add_dirs, timeout_s)
+        try:
+            out = call(text, model, add_dirs, timeout_s)
+        except DeniedToolError as e:
+            errors = [f"{e}. Không gọi Bash hay lệnh nào, chỉ đọc file rồi trả JSON"]
+            continue
         try:
             data = extract_json(out)
         except ValueError as e:

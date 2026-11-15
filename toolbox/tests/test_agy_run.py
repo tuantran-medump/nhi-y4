@@ -87,6 +87,16 @@ class TestCall(FakeAgy, unittest.TestCase):
         finally:
             os.environ.pop("FAKE_AGY_DENIED", None)
 
+    def test_ask_json_retries_once_after_denied_tool(self):
+        self.outputs("", '{"y": 2}')
+        os.environ["FAKE_AGY_DENIED_CALLS"] = "1"
+        try:
+            out = agy_run.ask_json("việc", agy_run.HYDROGEN, [self.tmp], lambda d: [])
+        finally:
+            os.environ.pop("FAKE_AGY_DENIED_CALLS", None)
+        self.assertEqual(out, {"y": 2})
+        self.assertIn("bị từ chối", self.calls()[1]["prompt"])
+
     def test_prefix_forbids_shell_commands(self):
         self.assertIn("KHÔNG chạy lệnh", agy_run.READ_ONLY_PREFIX)
 

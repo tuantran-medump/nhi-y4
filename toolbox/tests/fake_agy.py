@@ -24,7 +24,8 @@ text = outs[min(len(calls) - 1, len(outs) - 1)]
 if "--output-format" in argv and argv[argv.index("--output-format") + 1] == "json":
     status = os.environ.get("FAKE_AGY_STATUS", "SUCCESS")
     wrapper = {"status": status, "response": text}
-    if os.environ.get("FAKE_AGY_DENIED"):
+    denied_calls = os.environ.get("FAKE_AGY_DENIED_CALLS", "")
+    if os.environ.get("FAKE_AGY_DENIED") or str(len(calls)) in denied_calls.split(","):
         wrapper["denied_actions"] = [{"action": "command", "display_name": "Bash"}]
     print(json.dumps(wrapper, ensure_ascii=False))
 else:
