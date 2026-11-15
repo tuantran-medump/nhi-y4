@@ -220,11 +220,21 @@ def _cards_parts(lesson: str) -> list[Part]:
     return out
 
 
+SOURCE_CODE = re.compile(r"\[([SCNR]\d+):")
+
+
+def _unknown_codes(data: object, files: list[str]) -> list[str]:
+    """Mã nguồn agy dùng phải có trong đầu vào đã đưa (G1-B12: Hydrogen bịa mã C067)."""
+    allowed = {c for f in files for c in SOURCE_CODE.findall(common.read_text(f))}
+    used = set(SOURCE_CODE.findall(json.dumps(data, ensure_ascii=False)))
+    return [f"mã nguồn {c} không có trong đầu vào, không được bịa mã" for c in sorted(used - allowed)]
+
+
 def _cards_validate(d: object, lesson: str, part: Part) -> list[str]:
     if not isinstance(d, dict):
         return ["phải là object"]
     errs = [f"thiếu hoặc sai khóa {k} (mảng)" for k in CARD_KEYS if not isinstance(d.get(k), list)]
-    return errs or _notes_errors(d["notes"], lesson)
+    return errs or _notes_errors(d["notes"], lesson) + _unknown_codes(d, part.inputs[1:])
 
 
 def _cards_done(lesson: str, part: Part) -> bool:
@@ -247,7 +257,7 @@ def _compose_validate(d: object, lesson: str, part: Part) -> list[str]:
     if not isinstance(d, dict) or not isinstance(d.get("extra"), dict):
         return ["phải là object có notes (mảng) và extra (object)"]
     errs = [f"extra thiếu hoặc sai khóa {k} (chuỗi)" for k in EXTRA_KEYS if not isinstance(d["extra"].get(k), str)]
-    return errs + _notes_errors(d.get("notes"), lesson)
+    return errs + _notes_errors(d.get("notes"), lesson) + _unknown_codes(d, part.inputs[1:])
 
 
 def _compose_write(lesson: str, part: Part, d: dict) -> None:

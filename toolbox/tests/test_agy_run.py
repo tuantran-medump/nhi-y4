@@ -173,7 +173,8 @@ class TestSteps(FakeAgy, unittest.TestCase):
         os.makedirs(self.dir)
         with open(os.path.join(self.dir, "body_numbered.txt"), "w", encoding="utf-8") as f:
             f.write(BODY)
-        ev = "\n".join(f"[S{c}:p1] câu {i}" for c in ("088", "091") for i in range(300))
+        # Xen kẽ S088 và S091 để mỗi phần đều có cả hai mã, dữ liệu giả CARDS hợp lệ ở mọi phần
+        ev = "\n".join(f"[S{c}:p1] câu {i}" for i in range(300) for c in ("088", "091"))
         with open(os.path.join(self.dir, "evidence.md"), "w", encoding="utf-8") as f:
             f.write(ev)
         os.makedirs(os.path.join(self.tmp, "data"))
@@ -191,6 +192,22 @@ class TestSteps(FakeAgy, unittest.TestCase):
         self.assertEqual(models, [agy_run.HYDROGEN, agy_run.HYDROGEN])
         self.assertTrue(os.path.exists(os.path.join(self.dir, "cards_2.json")))
 
+    def test_cards_with_source_code_not_in_evidence_rejected(self):
+        part = agy_run.STEPS["cards"].parts(self.L)[0]
+        bad = {**CARDS, "experience": ["mẹo [S999:p1]"]}
+        errs = agy_run.STEPS["cards"].validate(bad, self.L, part)
+        self.assertTrue(any("S999" in e for e in errs))
+        self.assertEqual(agy_run.STEPS["cards"].validate(CARDS, self.L, part), [])
+
+    def test_compose_with_source_code_not_in_cards_rejected(self):
+        with open(os.path.join(self.dir, "cards_1.json"), "w", encoding="utf-8") as f:
+            json.dump(CARDS, f)
+        part = agy_run.STEPS["compose"].parts(self.L)[0]
+        extra = {k: "" for k in ("summary", "approach", "experience", "exam", "conflicts", "missing")}
+        bad = {"notes": [NOTE], "extra": {**extra, "experience": "mẹo [C067:p1]"}}
+        self.assertTrue(any("C067" in e for e in agy_run.STEPS["compose"].validate(bad, self.L, part)))
+        self.assertEqual(agy_run.STEPS["compose"].validate({"notes": [NOTE], "extra": extra}, self.L, part), [])
+
     def test_rerun_skips_valid_existing_part(self):
         self.outputs(json.dumps(CARDS))
         agy_run.run(self.L, "cards")
@@ -201,6 +218,8 @@ class TestSteps(FakeAgy, unittest.TestCase):
         self.assertEqual(len(self.calls()), n + 1)
 
     def test_compose_writes_notes_and_extra(self):
+        with open(os.path.join(self.dir, "cards_1.json"), "w", encoding="utf-8") as f:
+            json.dump(CARDS, f)
         extra = {k: "" for k in ("summary", "approach", "experience", "exam", "conflicts", "missing")}
         self.outputs(json.dumps({"notes": [NOTE], "extra": extra}))
         self.assertEqual(agy_run.run(self.L, "compose"), 0)
