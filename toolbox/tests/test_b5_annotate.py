@@ -14,6 +14,10 @@ class TestCite(unittest.TestCase):
         out = b5_annotate.cite_book("<<p10>>\n- Chỉ định nhập viện khi thở nhanh", "G1")
         self.assertEqual(out, "<<p10>>\n- Chỉ định nhập viện khi thở nhanh [G1:p10]")
 
+    def test_detached_colon_keeps_its_place(self):
+        out = b5_annotate.cite_book("<<p257>>\n3. Chế độ dinh dưỡng? NGOẠI TRỪ :", "G1")
+        self.assertEqual(out.split("\n")[1], "3. Chế độ dinh dưỡng? NGOẠI TRỪ : [G1:p257]")
+
     def test_plain_line_not_cited(self):
         self.assertEqual(b5_annotate.cite_book("<<p1>>\n- Bệnh xơ nang", "G1"), "<<p1>>\n- Bệnh xơ nang")
 

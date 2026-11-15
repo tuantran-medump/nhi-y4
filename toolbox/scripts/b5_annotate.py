@@ -26,7 +26,8 @@ UNCONFIRMED = "Chưa thấy có nguồn hiệp hội/guideline xác nhận"
 
 def _insert(line: str, text: str) -> str:
     stripped = line.rstrip()
-    if stripped.endswith((".", ";", ":", ",")):
+    # Dấu câu đứng tách riêng ("TRỪ :") là một từ riêng khi so với sách: giữ nguyên, chèn sau nó
+    if stripped.endswith((".", ";", ":", ",")) and not stripped[:-1].endswith(" "):
         return stripped[:-1] + " " + text + stripped[-1]
     return stripped + " " + text
 
