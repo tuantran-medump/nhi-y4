@@ -64,6 +64,12 @@ Mã bài: ________  Ngày kiểm: ________
 - [ ] Mở xem từng trang: không tràn lề, không vỡ bảng, không trang trắng
 - [ ] Sau khi có link Drive: mọi mã nguồn bấm được, mở đúng file (2.6)
 
+## 7b. Bước giao agy
+
+- [ ] Mọi bước agy chạy qua `agy_run.py`, kết quả đã qua script kiểm tra, `agy/log.jsonl` không còn dòng lỗi chưa xử lý (4)
+- [ ] B6: đã đọc hết đầu ra `b6_pairs.py`, không chỉ các dòng ⚑ (4)
+- [ ] Đã dựng cả `b7_render.py` và `b8_render_b14.py` (4)
+
 ## 8. Báo cáo cho người dùng
 
 - [ ] Nêu rõ bước nào chưa chạy hoặc chưa kiểm chứng (7)

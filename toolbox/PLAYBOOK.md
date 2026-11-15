@@ -136,14 +136,21 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 | Bước | Việc | Người làm |
 |---|---|---|
 | B1 | Cắt chữ của bài từ kho, dựng khung theo đề mục sách | Script |
-| B2 | Áp từ điển lỗi, rồi model nhỏ soát **từng trang** bằng cách xem ảnh cạnh chữ OCR, chỉ phát các chỗ cần sửa (`b2_review.py`). Bắt buộc vì lỗi dấu thường vẫn ra từ có nghĩa, script không phát hiện được | Script và Agent |
-| B2a | Sau khi soát trang, chạy `b2_ocr_fix.py <bài> diacritics`: script so từng cặp từ với kho chữ thật và báo cặp nghi sai dấu. Agent xem đúng các dòng đó và vá | Script và Agent |
-| B2b | Script tách câu và đánh số dòng. Agent chỉ phát bảng "dòng, cấp, ký hiệu, điểm tách". Script dựng danh sách rồi so khớp từng từ với bản B2 | Script và Agent |
-| B3 | Chốt danh sách nguồn tham khảo và phần viết tay cần đọc | Agent |
-| B4 | Đọc ảnh có chọn lọc: viết tay ưu tiên Notes, CBL; trên slide chỉ tối đa vài file mỗi bài | Agent đọc ảnh |
-| B5 | Thêm chú thích ngoặc đơn (2.3) và soạn Phần B | Agent |
-| B6 | Xử lý mâu thuẫn theo 2.4 | Agent |
-| B7 | Kiểm tra theo mục 7, dựng PDF, gắn link nếu đã có | Script và Agent |
+| B2 | Áp từ điển lỗi, rồi model nhỏ soát **từng trang** bằng cách xem ảnh cạnh chữ OCR, chỉ phát các chỗ cần sửa (`b2_review.py`). Bắt buộc vì lỗi dấu thường vẫn ra từ có nghĩa, script không phát hiện được | Script và agy: `agy_run.py <bài> review` (Hydrogen) |
+| B2a | Sau khi soát trang, chạy `b2_ocr_fix.py <bài> diacritics`: script so từng cặp từ với kho chữ thật và báo cặp nghi sai dấu. Agent xem đúng các dòng đó và vá | Script và Claude (tạm, chưa có định dạng JSON cho agy) |
+| B2b | Script tách câu và đánh số dòng. Agent chỉ phát bảng "dòng, cấp, ký hiệu, điểm tách". Script dựng danh sách rồi so khớp từng từ với bản B2 | Script và agy: `agy_run.py <bài> layout` (Hydrogen) |
+| B3 | Chốt danh sách nguồn tham khảo và phần viết tay cần đọc | Claude (tạm, chưa có định dạng JSON cho agy) |
+| B4 | Đọc ảnh có chọn lọc: viết tay ưu tiên Notes, CBL; trên slide chỉ tối đa vài file mỗi bài | agy: `agy_run.py <bài> ink` (Hydrogen) |
+| B5 | Rút thẻ bằng chứng, rồi soạn nháp chú thích ngoặc đơn (2.3) và Phần B | agy: `agy_run.py <bài> cards` (phần lẻ Hydrogen, phần chẵn Sonnet 5.5), rồi `agy_run.py <bài> compose` (Opus 5.5) |
+| B6 | Xử lý mâu thuẫn theo 2.4: đọc **hết** `b6_pairs.py <bài>` (mọi dòng sách có chú thích, ⚑ là dòng agy báo), bắt cả điểm agy sót, viết `resolve`, tra guideline ngoài nếu cần | Claude Code |
+| B7 | Kiểm tra theo mục 7, dựng **cả 2 bản** PDF (`b7_render.py` và `b8_render_b14.py`), gắn link nếu đã có | Script và Claude |
+
+**Quy tắc agy** (Antigravity, gói Google AI Pro, áp dụng từ lô Tiêu hóa - Dinh dưỡng):
+1. agy chỉ đọc: `agy_run.py` gọi `agy -p --mode plan`, agy in JSON, script kiểm rồi ghi vào đúng file của luồng cũ. agy không ghi file nào, nên không cần worktree.
+2. JSON sai cấu trúc thì script gọi lại 1 lần. agy lỗi hoặc hết hạn mức thì script dừng bước đó (mã thoát 1, ghi `kho/lessons/<bài>/agy/log.jsonl`). Claude báo người dùng, **không tự làm thay** bằng Claude.
+3. Chạy lại một bước sẽ bỏ qua phần đã có kết quả hợp lệ. Muốn làm lại thì thêm `--force`.
+4. `resolve` và mã E chỉ do Claude làm ở B6. agy không được tra web.
+5. Chọn model dựa trên bài thử ngày 2026-11-15 (bài HCTH, 59 chú thích chuẩn): Hydrogen trùng 44/59 trong 67 giây, Argon 42/59, Sonnet 47/59, gpt-6.1-sol 37/59 và báo thừa mâu thuẫn, Flash 33/59. Không dùng Codex trong giai đoạn B.
 
 ### Giai đoạn C: Duyệt
 
@@ -166,8 +173,8 @@ Không giảm số file tổng hợp đưa vào mỗi bài (quyết định củ
 9. Từ điển lỗi OCR tích lũy: mỗi lỗi sửa một lần rồi lưu, các bài sau script tự sửa.
 10. Thẻ bằng chứng: đọc xong một nguồn thì ghi thẻ ngắn (ý, mã, trang). File dùng cho nhiều bài chỉ nạp thẻ, không đọc lại.
 11. Sổ tiến độ, mỗi bài 1 phiên: trạng thái từng bài nằm trong file, bị ngắt thì làm tiếp đúng chỗ.
-12. Chia model theo việc: model nhỏ cho sửa OCR, xếp cấp dòng, đọc ảnh. Model mạnh chỉ cho mâu thuẫn và Phần B. Việc của model nhỏ luôn qua script kiểm tra.
-13. Lô chuyên khoa chạy bằng các model phụ trong phiên, như bài mẫu. Không dùng harness vì worker chạy trong worktree riêng, không thấy dữ liệu trong `kho/` (bị gitignore), và kết quả ở đó không vào `diff.patch` để kiểm chứng.
+12. Chia việc theo bảng giai đoạn B: phần đọc nặng giao agy (tính vào hạn mức Google), Claude Code chỉ điều phối, chạy script kiểm tra và quyết mâu thuẫn ở B6. Mọi kết quả của agy đều qua script kiểm tra.
+13. Không dùng harness vì worker chạy trong worktree riêng, không thấy dữ liệu trong `kho/` (bị gitignore), và kết quả ở đó không vào `diff.patch` để kiểm chứng. agy thì chạy chỉ đọc ngay trong repo, nên không vướng chuyện này.
 
 ## 6. Tiêu chuẩn sản phẩm
 
@@ -216,11 +223,12 @@ Mục không có nội dung vẫn giữ tiêu đề và ghi "Không có trong ng
 | B3 | [data/lesson_sources.csv](data/lesson_sources.csv) | Danh sách nguồn của bài (sinh ra sau A6) |
 | B4 | [scripts/b4_ink.py](scripts/b4_ink.py), [prompts/read_ink.md](templates/prompts/read_ink.md) | Đọc viết tay và trang scan |
 | B5 | [scripts/b3_novel.py](scripts/b3_novel.py), [scripts/cards.py](scripts/cards.py), [prompts/compose_extra.md](templates/prompts/compose_extra.md) | Lọc câu mới, thẻ bằng chứng, soạn chú thích và Phần B |
-| B6 | [prompts/compose_extra.md](templates/prompts/compose_extra.md), `data/external_sources.csv` | Mâu thuẫn, guideline ngoài |
-| B7 | [scripts/check_lesson.py](scripts/check_lesson.py), [scripts/b7_render.py](scripts/b7_render.py) | Kiểm tra, dựng PDF |
+| B2, B2b, B4, B5 | [scripts/agy_run.py](scripts/agy_run.py) | Giao bước cho agy chỉ đọc: `review`, `layout`, `ink`, `cards`, `compose` |
+| B6 | [scripts/b6_pairs.py](scripts/b6_pairs.py), [prompts/compose_extra.md](templates/prompts/compose_extra.md), `data/external_sources.csv` | Cặp dòng sách và chú thích, mâu thuẫn, guideline ngoài |
+| B7 | [scripts/check_lesson.py](scripts/check_lesson.py), [scripts/b7_render.py](scripts/b7_render.py), [scripts/b8_render_b14.py](scripts/b8_render_b14.py) | Kiểm tra, dựng PDF bản sao ⭐ và bản mẫu B14 |
 | C3 | [data/drive_links.csv](data/drive_links.csv) | Điền link Drive rồi chạy lại `b7_render.py` |
 | Mọi bước | [scripts/progress.py](scripts/progress.py) | Sổ tiến độ |
-| Lô | [prompts/batch_brief.md](templates/prompts/batch_brief.md) | Brief giao harness |
+| Lô | [prompts/batch_brief.md](templates/prompts/batch_brief.md) | Luồng chạy một lô (agy + Claude) |
 
 **Font:** Inter nhúng từ `templates/fonts` (giấy phép SIL OFL), không cần cài vào máy.
 
