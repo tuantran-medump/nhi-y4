@@ -13,6 +13,7 @@ Luồng mỗi bài (chi tiết ở bảng giai đoạn B và "Quy tắc agy" tro
 6. B6: `b6_pairs.py <bài>`, Claude đọc hết, viết `resolve` vào `notes.json`, sửa kết luận trong `extra.json`.
 7. B7: `b5_annotate.py <bài> apply ...`, `check_lesson.py <bài>` phải ra `[]`, dựng `b7_render.py` và `b8_render_b14.py`.
 `agy_run.py` thoát mã 1 thì dừng bài đó và báo người dùng, không tự làm thay bằng Claude.
+`agy_run.py` không ghi sổ tiến độ. Chỉ chạy `progress.py <bài> <bước> "ghi chú"` sau khi bước đó đã áp và qua script kiểm tra. Bị ngắt giữa chừng thì xem `kho/lessons/<bài>/agy/log.jsonl` để biết phần nào agy đã làm.
 
 Được sửa: `toolbox/kho/lessons/<mã bài>/`, `toolbox/kho/ink/<mã bài>/`, `toolbox/data/progress.json`, `toolbox/data/cards/`, `toolbox/data/ocr_dict.tsv`, `toolbox/data/external_sources.csv`.
 

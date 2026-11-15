@@ -19,7 +19,7 @@ from typing import Callable
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from lib import common  # noqa: E402
-from scripts import progress  # noqa: E402
+from scripts.b2_ocr_fix import _digits  # noqa: E402
 from scripts.b5_annotate import NOTE_OK  # noqa: E402
 
 HYDROGEN = "gemini-4-hydrogen-medium"
@@ -36,15 +36,23 @@ class AgyError(RuntimeError):
 
 def extract_json(text: str) -> object:
     """Lấy đối tượng hoặc mảng JSON trong stdout (có thể bọc ```json hoặc kèm lời dẫn)."""
-    candidates = FENCE.findall(text) + [text]
-    for chunk in candidates:
-        for open_ch, close_ch in (("{", "}"), ("[", "]")):
-            i, j = chunk.find(open_ch), chunk.rfind(close_ch)
-            if 0 <= i < j:
+    decoder = json.JSONDecoder()
+    for chunk in FENCE.findall(text)[::-1] + [text]:  # khối ```json cuối cùng thường là câu trả lời
+        best, best_len, i = None, 0, 0
+        while i < len(chunk):
+            if chunk[i] in "{[":
                 try:
-                    return json.loads(chunk[i:j + 1])
+                    obj, end = decoder.raw_decode(chunk, i)
                 except json.JSONDecodeError:
+                    i += 1
                     continue
+                if end - i > best_len:  # lấy giá trị dài nhất, tránh {...} lẻ trong lời dẫn
+                    best, best_len = obj, end - i
+                i = end
+            else:
+                i += 1
+        if best_len:
+            return best
     raise ValueError("stdout không có JSON hợp lệ")
 
 
@@ -249,7 +257,23 @@ def _batch_validate(value_errors: Callable[[str, str, object], list[str]]) -> Ca
 
 
 def _review_value(lesson: str, _id: str, v: object) -> list[str]:
-    return [] if isinstance(v, list) else [f"{_id}: phải là mảng"]
+    """Kiểm như b2_review.apply và b2_ocr_fix.apply_patch, để một mục sai không chặn cả bài lúc áp."""
+    if not isinstance(v, list):
+        return [f"{_id}: phải là mảng"]
+    task = next((t for t in common.read_json(_lesson_path(lesson, "review", "tasks.json"), []) if t["id"] == _id), {})
+    text = common.read_text(_lesson_path(lesson, "review", task.get("text", _id + ".txt")))
+    page = {int(n): s for n, s in (row.split("\t", 1) for row in text.split("\n") if "\t" in row)}
+    errs = []
+    for p in v:
+        if not isinstance(p, dict) or not isinstance(p.get("line"), int) or not all(isinstance(p.get(k), str) for k in ("old", "new")):
+            errs.append(f"{_id}: mục phải có line (số), old, new (chuỗi): {p!r}"[:150])
+        elif not int(task.get("start", 0)) <= p["line"] <= int(task.get("end", 0)) or p["line"] not in page:
+            errs.append(f"{_id}: dòng {p['line']} nằm ngoài trang")
+        elif p["old"] not in page[p["line"]]:
+            errs.append(f"{_id}: dòng {p['line']} không chứa {p['old']!r}")
+        elif _digits(p["old"]) != _digits(p["new"]) and not p.get("verified"):
+            errs.append(f"{_id}: dòng {p['line']} đổi số, phải đối chiếu ảnh rồi ghi verified: true")
+    return errs
 
 
 def _ink_value(lesson: str, _id: str, v: object) -> list[str]:
@@ -351,7 +375,9 @@ def run(lesson: str, step_name: str, part: int | None = None, model: str | None 
         done += 1
         _log(lesson, {"step": step_name, "part": p.index, "model": use, "seconds": round(time.time() - t), "status": "ok"})
         print(f"{lesson} {step_name} phần {p.index}/{p.total} xong ({use}, {round(time.time() - t)}s)")
-    progress.set(lesson, step.b_step, f"agy {step_name} {done}/{len(parts)}")
+    # Không ghi progress.json: progress coi mọi khóa là bước đã xong, mà sau agy còn bước áp và kiểm tra.
+    # Trạng thái agy nằm trong agy/log.jsonl; bước B chỉ ghi vào sổ khi đã áp và kiểm xong.
+    print(f"{lesson} {step_name}: {done}/{len(parts)} phần có kết quả hợp lệ")
     return 0
 
 

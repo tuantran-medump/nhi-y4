@@ -40,6 +40,16 @@ class TestExtract(unittest.TestCase):
     def test_extract_json_from_fenced_and_prose(self):
         self.assertEqual(agy_run.extract_json('Đây:\n```json\n{"a": [1]}\n```\nXong'), {"a": [1]})
 
+    def test_extract_json_single_element_array(self):
+        self.assertEqual(agy_run.extract_json('[{"line": 1}]'), [{"line": 1}])
+
+    def test_extract_json_prose_with_braces(self):
+        self.assertEqual(agy_run.extract_json('Ghi chú {xem dưới}:\n{"a": 1}\nXong {ok}'), {"a": 1})
+
+    def test_extract_json_last_fence_wins(self):
+        text = 'Ví dụ:\n```json\n{"ví": "dụ"}\n```\nKết quả:\n```json\n{"a": 2}\n```'
+        self.assertEqual(agy_run.extract_json(text), {"a": 2})
+
     def test_extract_json_none_raises(self):
         with self.assertRaises(ValueError):
             agy_run.extract_json("không có")
@@ -169,14 +179,40 @@ class TestSteps(FakeAgy, unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(self.dir, "cards_1.json")))
         self.assertEqual(self.log()[-1]["status"], "error")
 
-    def test_review_batch_writes_one_result_per_id(self):
+    def _review_tasks(self):
         rv = os.path.join(self.dir, "review")
         os.makedirs(rv)
         with open(os.path.join(rv, "tasks.json"), "w", encoding="utf-8") as f:
-            json.dump([{"id": "p0010", "image": "p0010.png"}, {"id": "p0011", "image": "p0011.png"}], f)
-        self.outputs(json.dumps({"p0010": [{"line": 2, "old": "a", "new": "b"}], "p0011": []}))
+            json.dump([{"id": "p0010", "image": "p0010.png", "text": "p0010.txt", "start": 2, "end": 4},
+                       {"id": "p0011", "image": "p0011.png", "text": "p0011.txt", "start": 5, "end": 6}], f)
+        for name, text in (("p0010.txt", "2\tchân đoán a\n4\tdòng bốn"), ("p0011.txt", "6\tliều 2 mg")):
+            with open(os.path.join(rv, name), "w", encoding="utf-8") as f:
+                f.write(text)
+        return rv
+
+    def test_review_batch_writes_one_result_per_id(self):
+        rv = self._review_tasks()
+        self.outputs(json.dumps({"p0010": [{"line": 2, "old": "chân", "new": "chẩn"}], "p0011": []}))
         self.assertEqual(agy_run.run(self.L, "review"), 0)
         self.assertEqual(json.load(open(os.path.join(rv, "results", "p0011.json"), encoding="utf-8")), [])
+
+    def test_review_item_with_bad_line_old_or_unverified_digit_rejected(self):
+        self._review_tasks()
+        bad = [{"line": 9, "old": "a", "new": "b"},            # ngoài trang
+               {"line": 2, "old": "không có", "new": "b"},      # old không nằm trong dòng
+               {"line": 2, "old": "a", "new": "4"}]             # đổi số mà không verified
+        for item in bad:
+            errs = agy_run.STEPS["review"].validate({"p0010": [item], "p0011": []}, self.L,
+                                                    agy_run._batch_parts(os.path.join(self.dir, "review", "tasks.json"),
+                                                                         os.path.join(self.dir, "review"))[0])
+            self.assertTrue(errs, item)
+
+    def test_run_does_not_mark_progress_steps_done(self):
+        self.outputs(json.dumps(CARDS))
+        agy_run.run(self.L, "cards")
+        state = json.load(open(os.path.join(self.tmp, "data", "progress.json"), encoding="utf-8")) \
+            if os.path.exists(os.path.join(self.tmp, "data", "progress.json")) else {}
+        self.assertNotIn("B5", state.get(self.L, {}))
 
 
 if __name__ == "__main__":

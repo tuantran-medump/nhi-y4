@@ -18,11 +18,12 @@ def pairs(body_numbered: str, notes: list[dict], conflict_lines: set[int]) -> st
     for n in notes:
         by_line.setdefault(n["line"], []).append(n["note"])
     out = []
-    for line in sorted(by_line):
+    # Dòng agy báo mâu thuẫn mà bản nháp không giữ chú thích vẫn phải hiện ra cho Claude xét
+    for line in sorted(set(by_line) | conflict_lines):
         flag = " ⚑" if line in conflict_lines else ""
         text = body[line - 1].strip() if 0 < line <= len(body) else "(ngoài thân bài)"
         out.append(f"L{line}{flag} {text}")
-        out += [f"  → {note}" for note in by_line[line]]
+        out += [f"  → {note}" for note in by_line.get(line, ["(chưa có chú thích)"])]
     return "\n".join(out)
 
 

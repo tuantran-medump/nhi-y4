@@ -13,6 +13,11 @@ class TestPairs(unittest.TestCase):
         self.assertEqual(out, ["L5 dòng 5", "  → (a [S1:p1])", "  → (b [S2:p1])",
                                "L9 dòng 9", "  → (c [S1:p1])"])
 
+    def test_flagged_line_without_note_still_printed(self):
+        out = b6_pairs.pairs(BODY, NOTES, {7})
+        self.assertIn("L7 ⚑ dòng 7", out)
+        self.assertIn("(chưa có chú thích)", out)
+
     def test_conflict_line_flagged(self):
         out = b6_pairs.pairs(BODY, NOTES, {9})
         self.assertIn("L9 ⚑ dòng 9", out)
