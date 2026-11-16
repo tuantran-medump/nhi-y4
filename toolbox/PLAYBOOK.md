@@ -150,7 +150,7 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 2. JSON sai cấu trúc thì script gọi lại 1 lần. agy lỗi hoặc hết hạn mức thì script dừng bước đó (mã thoát 1, ghi `kho/lessons/<bài>/agy/log.jsonl`). Claude báo người dùng, **không tự làm thay** bằng Claude.
 3. Chạy lại một bước sẽ bỏ qua phần đã có kết quả hợp lệ. Muốn làm lại thì thêm `--force`.
 4. `resolve` và mã E chỉ do Claude làm ở B6. agy không được tra web.
-5. Chọn model dựa trên bài thử ngày 2026-11-15 (bài HCTH, 59 chú thích chuẩn): Hydrogen trùng 44/59 trong 67 giây, Argon 42/59, Sonnet 47/59, gpt-6.1-sol 37/59 và báo thừa mâu thuẫn, Flash 33/59. Không dùng Codex trong giai đoạn B. Từ 2026-11-15 mọi bước agy dùng Hydrogen (người dùng quyết): Claude và GPT chạy qua agy có hạn mức rất thấp (Opus và Sonnet dùng chung một hạn mức, hết sau vài lượt), Hydrogen cho chất lượng đồng đều. Hạn mức tính riêng theo model, theo khung thời gian lăn.
+5. Chọn model dựa trên bài thử ngày 2026-11-15 (bài HCTH, 59 chú thích chuẩn): Hydrogen trùng 44/59 trong 67 giây, Argon 42/59, Sonnet 47/59, gpt-6.1-sol 37/59 và báo thừa mâu thuẫn, Flash 33/59. Không dùng Codex trong giai đoạn B. Từ 2026-11-15 mọi bước agy dùng Hydrogen (người dùng quyết): Claude và GPT chạy qua agy có hạn mức rất thấp (Opus và Sonnet dùng chung một hạn mức, hết sau vài lượt), Hydrogen cho chất lượng đồng đều. Hạn mức tính riêng theo model, theo khung thời gian lăn. Thử thêm ngày 2026-11-16 trên cùng đề: Claude Haiku 5.5 (subagent trong Claude Code) chỉ trùng 30/59, viết 28 chú thích, không bịa số, báo 7 mâu thuẫn (có chỗ báo nhầm), tốn khoảng 148 nghìn token lượt Claude. Không dùng Haiku thay Hydrogen cho cards và compose.
 
 ### Giai đoạn C: Duyệt
 
