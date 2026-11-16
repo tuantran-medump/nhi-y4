@@ -19,7 +19,7 @@ def strip_furniture(text: str) -> str:
     """Bỏ tiêu đề chạy, số trang, dấu CamScanner. Đây không phải nội dung sách."""
     lines = [ln for ln in text.splitlines() if not re.search(r"CamScanner|quét bằng", ln, re.I)
              and not (len(ln) < 50 and re.search(r"NHI\s*KHOA\s*-\s*T", ln, re.I))
-             and not (len(ln) < 70 and re.match(r"^\s*B[àa]i\s*\d", ln, re.I) and re.search(r"[®♦]", ln))]
+             and not (len(ln) < 70 and re.match(r"^\s*B[àa]i\s*\d", ln, re.I) and re.search(r"[®♦◆]", ln))]
     seen = 0
     for i, ln in enumerate(lines):
         if not ln.strip():

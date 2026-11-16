@@ -44,6 +44,16 @@ class TestSlice(Home):
         self.assertTrue(os.path.exists(common.kho_path("lessons", "G1-B08", "raw.txt")))
 
 
+class TestFurniture(unittest.TestCase):
+    def test_vlm_header_symbol_removed(self):
+        page = "Bài 14. Viêm mạch máu IgA ◆ 219\n\nNội dung sách"
+        self.assertEqual(b1_slice.strip_furniture(page).strip(), "Nội dung sách")
+
+    def test_tesseract_header_symbol_removed(self):
+        page = "Bài 14. Viêm mạch máu IgA ♦ 219\n\nNội dung sách"
+        self.assertEqual(b1_slice.strip_furniture(page).strip(), "Nội dung sách")
+
+
 class TestFix(unittest.TestCase):
     def test_dict_whole_word_only(self):
         text, n = b2_ocr_fix.apply_dict("phồi và phồi2 aphồi", [("phồi", "phổi")])
