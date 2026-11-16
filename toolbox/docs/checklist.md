@@ -66,7 +66,7 @@ Mã bài: ________  Ngày kiểm: ________
 
 ## 7b. Bước giao agy
 
-- [ ] Mọi bước agy chạy qua `agy_run.py`, kết quả đã qua script kiểm tra, `agy/log.jsonl` không còn dòng lỗi chưa xử lý (4)
+- [ ] Mọi bước agy do người dùng tự chạy qua `agy_run.py` (Claude không gọi agy), kết quả đã qua script kiểm tra, `agy/log.jsonl` không còn dòng lỗi chưa xử lý (4)
 - [ ] B6: đã đọc hết đầu ra `b6_pairs.py`, không chỉ các dòng ⚑ (4)
 - [ ] Đã dựng cả `b7_render.py` và `b8_render_b14.py` (4)
 

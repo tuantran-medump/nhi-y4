@@ -12,7 +12,7 @@ Luồng mỗi bài (chi tiết ở bảng giai đoạn B và "Quy tắc agy" tro
 5. B5: `b5_evidence.py <bài>`, `b5_annotate.py <bài> number` (tạo `body_numbered.txt`), rồi `agy_run.py <bài> cards`, rồi `agy_run.py <bài> compose`.
 6. B6: `b6_pairs.py <bài>`, Claude đọc hết, viết `resolve` vào `notes.json`, sửa kết luận trong `extra.json`. Cuối bản in có mục "Trang bằng chứng chưa có trong thẻ" (tối đa 40 trang nhiều số liệu, chỉ định, tiên lượng nhất mà bài chưa dùng): ý đáng giữ thì thêm chú thích, còn lại bỏ qua. Mục `missing` chỉ giữ trang hoặc nội dung thiếu, bỏ lỗi chính tả của sách mà agy ghi vào.
 7. B7: `b5_annotate.py <bài> apply ...`, `check_lesson.py <bài>` phải ra `[]`, dựng `b7_render.py` và `b8_render_b14.py`. Lỗi `block_number` thường do OCR đọc rác thành số: so từng số với bảng gõ lại (và ảnh khi cần), đúng thì chép khối đã gõ vào `fixed.txt`.
-`agy_run.py` thoát mã 1 thì dừng bài đó và báo người dùng, không tự làm thay bằng Claude.
+Claude không chạy `agy_run.py` (gọi agy là vi phạm chính sách của Google). Đến mỗi lệnh `agy_run.py` ở trên, Claude dừng, đưa người dùng đúng lệnh cần chạy, chờ người dùng báo xong rồi mới chạy bước áp và kiểm tra. `agy_run.py` thoát mã 1 thì dừng bài đó, không tự làm thay bằng Claude.
 `agy_run.py` không ghi sổ tiến độ. Chỉ chạy `progress.py <bài> <bước> "ghi chú"` sau khi bước đó đã áp và qua script kiểm tra. Bị ngắt giữa chừng thì xem `kho/lessons/<bài>/agy/log.jsonl` để biết phần nào agy đã làm.
 
 Được sửa: `toolbox/kho/lessons/<mã bài>/`, `toolbox/kho/ink/<mã bài>/`, `toolbox/data/progress.json`, `toolbox/data/cards/`, `toolbox/data/ocr_dict.tsv`, `toolbox/data/external_sources.csv`.

@@ -1,5 +1,7 @@
 # Workflow agy + Claude — Implementation Plan
 
+> **Cập nhật 2026-11-16:** Claude không còn chạy `agy` hay `agy_run.py`. Người dùng tự chạy các lệnh đó, Claude chỉ chuẩn bị lệnh, rồi áp và kiểm tra kết quả. Xem "Quy tắc agy" trong `toolbox/PLAYBOOK.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Các bước đọc nặng của giai đoạn B chạy qua `agy` ở chế độ chỉ đọc. Claude Code chỉ điều phối, kiểm tra bằng script và quyết mâu thuẫn (B6).
