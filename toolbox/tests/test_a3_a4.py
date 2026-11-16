@@ -68,6 +68,34 @@ class TestOcr(Home):
         self.assertFalse(os.path.exists(common.page_file("G1", 1)))
 
 
+    def test_redo_keeps_tesseract_copy(self):
+        pdf = os.path.join(self.t.name, "b.pdf")
+        d = pymupdf.open()
+        for _ in range(2):
+            d.new_page()
+        d.save(pdf)
+        d.close()
+        common.write_text(common.page_file("G1", 1), "tess cu")
+        a3_ocr.ocr_pages(pdf, "G1", engine=lambda png: "vlm moi", redo=True)
+        self.assertEqual(common.read_text(common.page_file("G1", 1)), "vlm moi")
+        self.assertEqual(common.read_text(common.page_file("G1", 1, "tess.txt")), "tess cu")
+        self.assertEqual(common.read_text(common.page_file("G1", 2)), "vlm moi")
+        self.assertFalse(os.path.exists(common.page_file("G1", 2, "tess.txt")))
+
+    def test_redo_resumes_after_interrupt(self):
+        pdf = os.path.join(self.t.name, "b.pdf")
+        d = pymupdf.open()
+        d.new_page()
+        d.save(pdf)
+        d.close()
+        common.write_text(common.page_file("G1", 1), "vlm da lam")
+        common.write_text(common.page_file("G1", 1, "tess.txt"), "tess cu")
+        calls = []
+        a3_ocr.ocr_pages(pdf, "G1", engine=lambda png: calls.append(1) or "x", redo=True)
+        self.assertEqual(calls, [])
+        self.assertEqual(common.read_text(common.page_file("G1", 1)), "vlm da lam")
+
+
 class TestParse(unittest.TestCase):
     def test_printed_number_from_header(self):
         self.assertEqual(a4_pagemap.parse_printed("120 ♦ NHI KHOA - Tập 1\nabc"), 120)

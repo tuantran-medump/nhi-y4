@@ -4,5 +4,20 @@
   "tesseract": "C:/Program Files/Tesseract-OCR/tesseract.exe",
   "tessdata_dir": "C:/Users/Admin/AppData/Local/tessdata_best",
   "ocr_lang": "vie",
-  "edge": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
+  "edge": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+  "vlm": {
+    "server": "C:/Users/Admin/local-llm/llama/llama-server.exe",
+    "model": "C:/Users/Admin/local-llm/models/Qwen3VL-8B-Instruct-Q4_K_M.gguf",
+    "mmproj": "C:/Users/Admin/local-llm/models/mmproj-Qwen3VL-8B-Instruct-Q8_0.gguf",
+    "args": [
+      "-ngl",
+      "99",
+      "-c",
+      "12288",
+      "-np",
+      "1",
+      "--no-mmproj-offload"
+    ],
+    "port": 8080
+  }
 }

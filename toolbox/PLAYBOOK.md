@@ -129,6 +129,8 @@ Số trong ngoặc là trang in bắt đầu, sẽ xác minh ở bước A3.
 | A5 | Trích chữ theo trang cho toàn bộ file có lớp chữ | Kho chữ |
 | A6 | Gán nguồn vào bài theo phạm vi đối chiếu ở mục 2.1: cùng chuyên khoa và file tổng hợp, lấy trang có từ khóa | Bảng nguồn theo bài |
 
+Chép sách in bằng model tại máy (từ 2026-11-16): trước B1 của mỗi bài mới, chạy `a3_ocr.py <G1|G2> --engine vlm --pages <trang PDF của bài>`. Bản Tesseract được giữ ở `p####.tess.txt`. Bài thử G1 trang 223-226: Qwen3-VL-8B Q4 khớp 97,0% từng từ so với bản sửa tay (Tesseract 86,7%), lỗi còn lại chủ yếu là dấu gần giống (sơ/sổ, đọng/động), nên B2 vẫn phải soát trang. Khoảng 2-4 phút mỗi trang trên RX 6600 (phần đọc ảnh chạy CPU vì GPU bị `device lost`). Bài đã qua B2 thì không chép lại. Không dùng model này cho viết tay nguệch ngoạc (B4): đọc sai mà không đánh dấu `[?...?]`, còn chép lẫn chữ in.
+
 Đã biết ở A4: số trang in bị nhảy so với file scan (Tập 1 hụt khoảng 7 trang, Tập 2 hụt khoảng 1 trang, cả hai không có Bảng tra từ). Trang thiếu nằm trong bài nào thì ghi ở "Cần bổ sung" của bài đó.
 
 ### Giai đoạn B: Soạn từng bài
@@ -214,7 +216,7 @@ Mục không có nội dung vẫn giữ tiêu đề và ghi "Không có trong ng
 |---|---|---|
 | A1 | [scripts/a1_inventory.py](scripts/a1_inventory.py) | Lập danh mục, cấp mã nguồn |
 | A2 | [scripts/a2_dedupe.py](scripts/a2_dedupe.py) | Đánh dấu bản trùng |
-| A3 | [scripts/a3_ocr.py](scripts/a3_ocr.py) | OCR sách, `--sample` để kiểm thử |
+| A3 | [scripts/a3_ocr.py](scripts/a3_ocr.py), [lib/vlm.py](lib/vlm.py) | OCR sách, `--sample` để kiểm thử. `--engine vlm --pages a-b` chép lại trang sách in bằng Qwen3-VL-8B chạy tại máy (khóa `vlm` trong `config.json`), server tự tắt khi xong |
 | A4 | [scripts/a4_pagemap.py](scripts/a4_pagemap.py) | Bản đồ trang, trang thiếu |
 | A5 | [scripts/a5_extract.py](scripts/a5_extract.py) | Trích chữ vào kho |
 | A6 | [scripts/a6_assign.py](scripts/a6_assign.py) | Gán nguồn vào bài |
