@@ -189,6 +189,11 @@ class TestSteps(FakeAgy, unittest.TestCase):
         p = os.path.join(self.dir, "agy", "log.jsonl")
         return [json.loads(l) for l in open(p, encoding="utf-8")] if os.path.exists(p) else []
 
+    def test_missing_input_file_stops_before_calling_agy(self):
+        self.outputs("[]")
+        self.assertEqual(agy_run.run(self.L, "layout"), 1)  # chưa có units.txt
+        self.assertEqual(self.calls(), [])
+
     def test_cards_parts_all_use_hydrogen(self):
         self.outputs(json.dumps(CARDS))
         self.assertEqual(agy_run.run(self.L, "cards"), 0)
@@ -259,6 +264,8 @@ class TestSteps(FakeAgy, unittest.TestCase):
         for name, text in (("p0010.txt", "2\tchân đoán a\n4\tdòng bốn"), ("p0011.txt", "6\tliều 2 mg")):
             with open(os.path.join(rv, name), "w", encoding="utf-8") as f:
                 f.write(text)
+        for name in ("p0010.png", "p0011.png"):
+            open(os.path.join(rv, name), "wb").close()
         return rv
 
     def test_review_batch_writes_one_result_per_id(self):
@@ -288,6 +295,7 @@ class TestSteps(FakeAgy, unittest.TestCase):
         with open(os.path.join(self.dir, "fixed.txt"), "w", encoding="utf-8") as f:
             f.write("<<p10>>\n<<block:p0010a>>\nbảng\n<<endblock>>\n<<block:p0010f>>\nhình\n<<endblock>>")
         os.makedirs(os.path.join(self.dir, "review"), exist_ok=True)
+        open(os.path.join(self.dir, "review", "p0010.png"), "wb").close()
 
     def test_blocks_writes_md_and_crops_figures(self):
         self._blocks()

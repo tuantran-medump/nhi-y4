@@ -479,6 +479,10 @@ def run(lesson: str, step_name: str, part: int | None = None, model: str | None 
         print(f"Bước {step_name} cần đọc ảnh mà agy chưa đọc được, làm theo luồng cũ")
         return 2
     parts = step.parts(lesson)
+    missing = sorted({f for p in parts for f in p.inputs if not os.path.exists(f)})
+    if missing:  # G2-B17 layout: thiếu units.txt thì agy trả lời suông, tốn 2 lượt mà không có JSON
+        print(f"DỪNG {lesson} {step_name}: thiếu file đầu vào, chưa gọi agy:\n- " + "\n- ".join(missing))
+        return 1
     # common.TOOLBOX để agy đọc được PLAYBOOK.md và data/ mà các prompt nhắc tới
     dirs = sorted({_lesson_path(lesson), PROMPTS, common.TOOLBOX} | {os.path.dirname(f) for p in parts for f in p.inputs})
     done = 0
