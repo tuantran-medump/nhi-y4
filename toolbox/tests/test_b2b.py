@@ -64,6 +64,14 @@ class TestVerify(unittest.TestCase):
         body = "- Vi khuẩn gồm:\n  + a\n  + b\n  + c.\n- Điều trị 5 ngày."
         self.assertEqual(verify_words(self.FIXED, body), [])
 
+    def test_semicolon_after_number_dropped_at_split(self):
+        fixed = "Liều: 0,9 µg ở tuổi 1 – 3; 1,2 µg ở tuổi 4 – 8; 1,8 µg."
+        body = "- Liều: 0,9 µg ở tuổi 1 – 3\n- 1,2 µg ở tuổi 4 – 8\n- 1,8 µg."
+        self.assertEqual(verify_words(fixed, body), [])
+
+    def test_decimal_comma_still_protected(self):
+        self.assertTrue(verify_words("Liều 2, 5 mg.", "- Liều 2\n- 5 mg."))
+
     def test_verify_fails_on_changed_word(self):
         self.assertTrue(verify_words(self.FIXED, "- Vi khuẩn gồm: a, b, c.\n- Điều trị 3 ngày."))
 

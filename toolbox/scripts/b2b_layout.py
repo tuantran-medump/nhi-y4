@@ -27,7 +27,7 @@ LIST_START = re.compile(r"^(?:\d{1,2}[.,]|[A-E]\.)\s+\S")
 DEFAULT_MARKER = {1: "-", 2: "+", 3: "*"}
 NOTE = re.compile(r"\s*\([^()]*\[[SCNRE]\d+:p[^\]]*\][^()]*\)")
 CITE = re.compile(r"\s*\[[GSCNRE]\d*:p[^\]]*\]")
-END_COMMA = re.compile(r"(?<!\d)[,;](?=\s|$)|[,;](?=\s+\D|$)")  # "2, 5" có thể là số thập phân
+END_COMMA = re.compile(r";(?=\s|$)|(?<!\d),(?=\s|$)|,(?=\s+\D|$)")  # "2, 5" có thể là số thập phân; ";" thì không
 
 
 def _is_heading(line: str) -> bool:
