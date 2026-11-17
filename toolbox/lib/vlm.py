@@ -16,14 +16,15 @@ PROMPT = ("Chép lại toàn bộ chữ trong ảnh trang sách tiếng Việt n
           "không tóm tắt, không thêm lời giải thích, không bỏ sót dòng nào.")
 
 
-_ONE_CELL = re.compile(r"^\|([^|]*)\|\s*$")
+_ONE_CELL = re.compile(r"^\|([^|]*)\|?\s*$")
+_RULE = re.compile(r"^\s*-{3,}\s*$")
 
 
 def clean(text: str) -> str:
-    """Bỏ khung ``` và dấu | bọc dòng chỉ có một ô (Qwen hay coi cả trang là bảng một cột)."""
+    """Bỏ khung ```, dòng kẻ ---, và dấu | bọc dòng chỉ có một ô (Qwen hay coi cả trang là bảng một cột)."""
     m = re.fullmatch(r"\s*```[^\n]*\n(.*?)\n?```\s*", text, re.S)
     text = (m.group(1) if m else text).strip()
-    return "\n".join(_ONE_CELL.sub(lambda g: g.group(1).strip(), ln) for ln in text.split("\n"))
+    return "\n".join(_ONE_CELL.sub(lambda g: g.group(1).strip(), ln) for ln in text.split("\n") if not _RULE.match(ln))
 
 
 RETRY_NOTE = (" Ô trống trong bảng thì để trống một lần, tuyệt đối không lặp lại ký tự | hay cùng một cụm chữ "

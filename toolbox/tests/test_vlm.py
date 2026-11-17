@@ -35,6 +35,10 @@ class TestVlm(unittest.TestCase):
         self.assertTrue(parts[0]["image_url"]["url"].startswith("data:image/png;base64,"))
         self.assertEqual(sent["body"]["temperature"], 0)
 
+    def test_half_pipe_and_rule_lines(self):
+        page = "Bài 7 ◆ 85\n---\n|Bài 7. THIẾU VITAMIN A\n| quá mức và tập thể dục\n| a | b\n|---|---|"
+        self.assertEqual(vlm.clean(page), "Bài 7 ◆ 85\nBài 7. THIẾU VITAMIN A\nquá mức và tập thể dục\n| a | b\n|---|---|")
+
     def test_loop_retried_then_raises(self):
         calls = []
 
