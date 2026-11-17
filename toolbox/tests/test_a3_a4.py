@@ -82,6 +82,18 @@ class TestOcr(Home):
         self.assertEqual(common.read_text(common.page_file("G1", 2)), "vlm moi")
         self.assertFalse(os.path.exists(common.page_file("G1", 2, "tess.txt")))
 
+    def test_engine_skip_keeps_old_text(self):
+        pdf = os.path.join(self.t.name, "b.pdf")
+        d = pymupdf.open()
+        d.new_page()
+        d.save(pdf)
+        d.close()
+        common.write_text(common.page_file("G1", 1), "tess cu")
+        a3_ocr.ocr_pages(pdf, "G1", engine=lambda png: None, redo=True)
+        self.assertEqual(common.read_text(common.page_file("G1", 1)), "tess cu")
+        self.assertEqual(common.read_text(common.page_file("G1", 1, "tess.txt")), "tess cu")
+        self.assertEqual(common.read_text(common.kho_path("G1", "vlm_failed.txt")).split(), ["1"])
+
     def test_redo_resumes_after_interrupt(self):
         pdf = os.path.join(self.t.name, "b.pdf")
         d = pymupdf.open()

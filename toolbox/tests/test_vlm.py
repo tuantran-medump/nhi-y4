@@ -35,9 +35,41 @@ class TestVlm(unittest.TestCase):
         self.assertTrue(parts[0]["image_url"]["url"].startswith("data:image/png;base64,"))
         self.assertEqual(sent["body"]["temperature"], 0)
 
+    def test_loop_retried_then_raises(self):
+        calls = []
+
+        def fake_open(req, timeout):
+            calls.append(json.loads(req.data)["temperature"])
+            return FakeResp({"choices": [{"message": {"content": "| Bảng |\n" + "| " * 200},
+                                          "finish_reason": "length"}]})
+
+        with mock.patch("urllib.request.urlopen", fake_open):
+            with self.assertRaises(vlm.Degenerate):
+                vlm.ocr_page(b"x", url="http://x")
+        self.assertEqual(calls, [0, 0.3])
+
+    def test_loop_fixed_on_retry(self):
+        answers = iter([{"content": "a " * 10 + "| " * 50, "finish_reason": "stop"},
+                        {"content": "Trang đúng", "finish_reason": "stop"}])
+
+        def fake_open(req, timeout):
+            a = next(answers)
+            return FakeResp({"choices": [{"message": {"content": a["content"]}, "finish_reason": a["finish_reason"]}]})
+
+        with mock.patch("urllib.request.urlopen", fake_open):
+            self.assertEqual(vlm.ocr_page(b"x", url="http://x"), "Trang đúng")
+
+    def test_normal_table_not_flagged(self):
+        table = "| Loại | A | B |\n|---|---|---|\n" + "\n".join(f"| sữa {i} | {i},5 |  |" for i in range(40))
+        self.assertFalse(vlm.degenerate(table, "stop"))
+
     def test_strip_code_fence(self):
         self.assertEqual(vlm.clean("```text\nabc\n```"), "abc")
         self.assertEqual(vlm.clean("abc"), "abc")
+
+    def test_unwrap_single_cell_rows(self):
+        page = "|Bài 3. Nuôi trẻ ♦ 29|\n|+ Bà mẹ nhiễm HSV|\n| Liều | 10 mg |\n|---|---|"
+        self.assertEqual(vlm.clean(page), "Bài 3. Nuôi trẻ ♦ 29\n+ Bà mẹ nhiễm HSV\n| Liều | 10 mg |\n|---|---|")
 
     def test_server_always_stopped(self):
         proc = mock.Mock()

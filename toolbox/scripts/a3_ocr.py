@@ -62,6 +62,12 @@ def ocr_pages(pdf: str, code: str, pages: list[int] | None = None, engine=tesser
                 continue
             png = d[n - 1].get_pixmap(dpi=dpi).tobytes("png")
             text = engine(png)
+            if text is None:  # engine bỏ trang này: giữ bản cũ, đánh dấu đã xét để lần sau không chạy lại
+                if redo and os.path.exists(out):
+                    common.write_text(tess, common.read_text(out))
+                    with open(common.kho_path(code, "vlm_failed.txt"), "a", encoding="utf-8") as f:
+                        f.write(f"{n}\n")
+                continue
             if redo and os.path.exists(out):
                 os.replace(out, tess)
             common.write_text(out, text)
@@ -117,7 +123,11 @@ def main() -> None:
     with vlm.Server(common.load_config()["vlm"], log_path=common.kho_path(a.code, "vlm_server.log")) as srv:
         def engine(png):
             t = time.time()
-            text = srv.ocr(png)
+            try:
+                text = srv.ocr(png)
+            except vlm.Degenerate:
+                print(f"  model lặp/cắt cả 2 lần, giữ bản Tesseract ({time.time() - t:.0f}s)", flush=True)
+                return None
             print(f"  trang xong sau {time.time() - t:.0f}s", flush=True)
             return text
         n = ocr_pages(pdf, a.code, pages, engine=engine, redo=True, dpi=VLM_DPI)

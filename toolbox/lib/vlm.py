@@ -16,19 +16,47 @@ PROMPT = ("Chép lại toàn bộ chữ trong ảnh trang sách tiếng Việt n
           "không tóm tắt, không thêm lời giải thích, không bỏ sót dòng nào.")
 
 
+_ONE_CELL = re.compile(r"^\|([^|]*)\|\s*$")
+
+
 def clean(text: str) -> str:
+    """Bỏ khung ``` và dấu | bọc dòng chỉ có một ô (Qwen hay coi cả trang là bảng một cột)."""
     m = re.fullmatch(r"\s*```[^\n]*\n(.*?)\n?```\s*", text, re.S)
-    return (m.group(1) if m else text).strip()
+    text = (m.group(1) if m else text).strip()
+    return "\n".join(_ONE_CELL.sub(lambda g: g.group(1).strip(), ln) for ln in text.split("\n"))
+
+
+RETRY_NOTE = (" Ô trống trong bảng thì để trống một lần, tuyệt đối không lặp lại ký tự | hay cùng một cụm chữ "
+              "nhiều lần.")
+_LOOP = re.compile(r"(?:\|\s*){30,}|(.{4,40}?)\1{15,}", re.S)
+
+
+class Degenerate(Exception):
+    """Model lặp vô hạn hoặc bị cắt vì hết token: không dùng được kết quả trang này."""
+
+
+def degenerate(text: str, finish_reason: str | None) -> bool:
+    return finish_reason == "length" or bool(_LOOP.search(text))
+
+
+def _ask(png: bytes, url: str, prompt: str, temperature: float, timeout: int) -> tuple[str, str | None]:
+    body = {"messages": [{"role": "user", "content": [
+        {"type": "image_url", "image_url": {"url": "data:image/png;base64," + base64.b64encode(png).decode()}},
+        {"type": "text", "text": prompt}]}],
+        "temperature": temperature, "max_tokens": 4096}
+    req = urllib.request.Request(url, json.dumps(body).encode(), {"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        ch = json.loads(r.read())["choices"][0]
+    return ch["message"]["content"], ch.get("finish_reason")
 
 
 def ocr_page(png: bytes, url: str, timeout: int = 1800) -> str:
-    body = {"messages": [{"role": "user", "content": [
-        {"type": "image_url", "image_url": {"url": "data:image/png;base64," + base64.b64encode(png).decode()}},
-        {"type": "text", "text": PROMPT}]}],
-        "temperature": 0, "max_tokens": 4096}
-    req = urllib.request.Request(url, json.dumps(body).encode(), {"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return clean(json.loads(r.read())["choices"][0]["message"]["content"])
+    """Chép một trang. Lặp hoặc bị cắt thì hỏi lại một lần; vẫn hỏng thì báo Degenerate."""
+    for prompt, temp in ((PROMPT, 0), (PROMPT + RETRY_NOTE, 0.3)):
+        text, reason = _ask(png, url, prompt, temp, timeout)
+        if not degenerate(text, reason):
+            return clean(text)
+    raise Degenerate("model lặp hoặc bị cắt cả hai lần")
 
 
 def _healthy(port: int) -> bool:
