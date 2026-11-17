@@ -108,6 +108,7 @@ def main() -> None:
     ap.add_argument("code", help="G1, G2 hoặc scans (mọi trang scan của nguồn tham khảo)")
     ap.add_argument("--sample", "--pages", dest="sample", help="trang PDF, ví dụ 12,130 hoặc 223-240")
     ap.add_argument("--engine", choices=["tesseract", "vlm"], default="tesseract")
+    ap.add_argument("--profile", help="hồ sơ model đọc ảnh trong config.json vlm_profiles, ví dụ ky (chậm, kỹ hơn)")
     a = ap.parse_args()
     if a.code == "scans":
         root = os.path.join(common.load_config()["source_root"], "Tài liệu")
@@ -120,7 +121,7 @@ def main() -> None:
         print(f"OCR xong {ocr_pages(pdf, a.code, pages)} trang mới")
         return
     from lib import vlm
-    with vlm.Server(common.load_config()["vlm"], log_path=common.kho_path(a.code, "vlm_server.log")) as srv:
+    with vlm.Server(vlm.profile(common.load_config(), a.profile), log_path=common.kho_path(a.code, "vlm_server.log")) as srv:
         def engine(png):
             t = time.time()
             try:

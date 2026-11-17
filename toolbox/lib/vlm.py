@@ -16,6 +16,14 @@ PROMPT = ("Chép lại toàn bộ chữ trong ảnh trang sách tiếng Việt n
           "không tóm tắt, không thêm lời giải thích, không bỏ sót dòng nào.")
 
 
+def profile(cfg: dict, name: str | None) -> dict:
+    """Cấu hình server theo hồ sơ: "vlm" là mặc định (nhanh), "vlm_profiles"[name] ghi đè từng khóa."""
+    base = dict(cfg["vlm"])
+    if name:
+        base.update(cfg.get("vlm_profiles", {})[name])
+    return base
+
+
 _ONE_CELL = re.compile(r"^\|([^|]*)\|?\s*$")
 _RULE = re.compile(r"^\s*-{3,}\s*$")
 

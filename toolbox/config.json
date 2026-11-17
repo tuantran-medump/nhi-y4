@@ -19,5 +19,21 @@
       "--no-mmproj-offload"
     ],
     "port": 8080
+  },
+  "vlm_profiles": {
+    "ky": {
+      "mmproj": "D:/local-llm/models/mmproj-Qwen3VL-8B-Instruct-F16.gguf",
+      "args": [
+        "-ngl",
+        "99",
+        "-c",
+        "12288",
+        "-np",
+        "1",
+        "--no-mmproj-offload",
+        "--image-min-tokens",
+        "1024"
+      ]
+    }
   }
 }

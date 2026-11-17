@@ -35,6 +35,16 @@ class TestVlm(unittest.TestCase):
         self.assertTrue(parts[0]["image_url"]["url"].startswith("data:image/png;base64,"))
         self.assertEqual(sent["body"]["temperature"], 0)
 
+    def test_profile_overrides_base(self):
+        cfg = {"vlm": {"server": "s", "model": "m", "mmproj": "q8", "args": ["-ngl", "99"], "port": 8080},
+               "vlm_profiles": {"ky": {"mmproj": "f16", "args": ["-ngl", "99", "--image-min-tokens", "1024"]}}}
+        ky = vlm.profile(cfg, "ky")
+        self.assertEqual((ky["mmproj"], ky["model"]), ("f16", "m"))
+        self.assertIn("--image-min-tokens", ky["args"])
+        self.assertEqual(vlm.profile(cfg, None)["mmproj"], "q8")
+        with self.assertRaises(KeyError):
+            vlm.profile(cfg, "khong-co")
+
     def test_half_pipe_and_rule_lines(self):
         page = "Bài 7 ◆ 85\n---\n|Bài 7. THIẾU VITAMIN A\n| quá mức và tập thể dục\n| a | b\n|---|---|"
         self.assertEqual(vlm.clean(page), "Bài 7 ◆ 85\nBài 7. THIẾU VITAMIN A\nquá mức và tập thể dục\n| a | b\n|---|---|")
