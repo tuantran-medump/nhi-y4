@@ -19,8 +19,12 @@ OPEN = re.compile(r"^<<block:([\w-]+)>>\s*$", re.M)
 NUM = re.compile(r"\d+(?:[.,]\d+)?")
 
 
+SUBSCRIPT = str.maketrans("₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹", "01234567890123456789")
+
+
 def _numbers(text: str) -> set[str]:
-    return {n.replace(",", ".") for n in NUM.findall(text)}
+    """Số trong chữ; chỉ số dưới/trên (B₁₂, m²) tính như số thường."""
+    return {n.replace(",", ".") for n in NUM.findall(text.translate(SUBSCRIPT))}
 
 
 def check(lesson: str) -> list[dict]:
