@@ -7,8 +7,8 @@
   "edge": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
   "vlm": {
     "server": "D:/local-llm/llama/llama-server.exe",
-    "model": "D:/local-llm/models/Qwen3VL-8B-Instruct-Q4_K_M.gguf",
-    "mmproj": "D:/local-llm/models/mmproj-Qwen3VL-8B-Instruct-Q8_0.gguf",
+    "model": "D:/local-llm/models/Qwen3.5-9B-Q4_K_M.gguf",
+    "mmproj": "D:/local-llm/models/mmproj-Qwen3.5-9B-F16.gguf",
     "args": [
       "-ngl",
       "99",
@@ -19,21 +19,5 @@
       "--no-mmproj-offload"
     ],
     "port": 8080
-  },
-  "vlm_profiles": {
-    "ky": {
-      "mmproj": "D:/local-llm/models/mmproj-Qwen3VL-8B-Instruct-F16.gguf",
-      "args": [
-        "-ngl",
-        "99",
-        "-c",
-        "12288",
-        "-np",
-        "1",
-        "--no-mmproj-offload",
-        "--image-min-tokens",
-        "1024"
-      ]
-    }
   }
 }

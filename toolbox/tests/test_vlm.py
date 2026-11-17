@@ -35,15 +35,16 @@ class TestVlm(unittest.TestCase):
         self.assertTrue(parts[0]["image_url"]["url"].startswith("data:image/png;base64,"))
         self.assertEqual(sent["body"]["temperature"], 0)
 
-    def test_profile_overrides_base(self):
-        cfg = {"vlm": {"server": "s", "model": "m", "mmproj": "q8", "args": ["-ngl", "99"], "port": 8080},
-               "vlm_profiles": {"ky": {"mmproj": "f16", "args": ["-ngl", "99", "--image-min-tokens", "1024"]}}}
-        ky = vlm.profile(cfg, "ky")
-        self.assertEqual((ky["mmproj"], ky["model"]), ("f16", "m"))
-        self.assertIn("--image-min-tokens", ky["args"])
-        self.assertEqual(vlm.profile(cfg, None)["mmproj"], "q8")
-        with self.assertRaises(KeyError):
-            vlm.profile(cfg, "khong-co")
+    def test_thinking_off_and_think_tag_stripped(self):
+        sent = {}
+
+        def fake_open(req, timeout):
+            sent["body"] = json.loads(req.data)
+            return FakeResp({"choices": [{"message": {"content": "<think>\n\n</think>\n\nBài 13"}}]})
+
+        with mock.patch("urllib.request.urlopen", fake_open):
+            self.assertEqual(vlm.ocr_page(b"x", url="http://x"), "Bài 13")
+        self.assertEqual(sent["body"]["chat_template_kwargs"], {"enable_thinking": False})
 
     def test_half_pipe_and_rule_lines(self):
         page = "Bài 7 ◆ 85\n---\n|Bài 7. THIẾU VITAMIN A\n| quá mức và tập thể dục\n| a | b\n|---|---|"

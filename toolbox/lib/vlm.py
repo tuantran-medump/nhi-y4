@@ -16,14 +16,6 @@ PROMPT = ("Chép lại toàn bộ chữ trong ảnh trang sách tiếng Việt n
           "không tóm tắt, không thêm lời giải thích, không bỏ sót dòng nào.")
 
 
-def profile(cfg: dict, name: str | None) -> dict:
-    """Cấu hình server theo hồ sơ: "vlm" là mặc định (nhanh), "vlm_profiles"[name] ghi đè từng khóa."""
-    base = dict(cfg["vlm"])
-    if name:
-        base.update(cfg.get("vlm_profiles", {})[name])
-    return base
-
-
 _ONE_CELL = re.compile(r"^\|([^|]*)\|?\s*$")
 _RULE = re.compile(r"^\s*-{3,}\s*$")
 
@@ -52,11 +44,13 @@ def _ask(png: bytes, url: str, prompt: str, temperature: float, timeout: int) ->
     body = {"messages": [{"role": "user", "content": [
         {"type": "image_url", "image_url": {"url": "data:image/png;base64," + base64.b64encode(png).decode()}},
         {"type": "text", "text": prompt}]}],
-        "temperature": temperature, "max_tokens": 4096}
+        "temperature": temperature, "max_tokens": 4096,
+        "chat_template_kwargs": {"enable_thinking": False}}  # Qwen3.5 mặc định suy nghĩ trước khi trả lời
     req = urllib.request.Request(url, json.dumps(body).encode(), {"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         ch = json.loads(r.read())["choices"][0]
-    return ch["message"]["content"], ch.get("finish_reason")
+    text = re.sub(r"<think>.*?</think>", "", ch["message"]["content"] or "", flags=re.S).strip()
+    return text, ch.get("finish_reason")
 
 
 def ocr_page(png: bytes, url: str, timeout: int = 1800) -> str:
