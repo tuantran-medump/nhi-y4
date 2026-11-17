@@ -142,7 +142,7 @@ Chép sách in bằng model tại máy (từ 2026-11-16): trước B1 của mỗ
 | B2a | Sau khi soát trang, chạy `b2_ocr_fix.py <bài> diacritics`: script so từng cặp từ với kho chữ thật và báo cặp nghi sai dấu. Agent xem đúng các dòng đó và vá | Script và Claude (tạm, chưa có định dạng JSON cho agy) |
 | B2b | Script tách câu và đánh số dòng. Agent chỉ phát bảng "dòng, cấp, ký hiệu, điểm tách". Script dựng danh sách rồi so khớp từng từ với bản B2 | Script và agy: `agy_run.py <bài> layout` (Hydrogen) |
 | B3 | Chốt danh sách nguồn tham khảo và phần viết tay cần đọc | Claude (tạm, chưa có định dạng JSON cho agy) |
-| B4 | Đọc ảnh có chọn lọc: viết tay ưu tiên Notes, CBL; trên slide chỉ tối đa vài file mỗi bài | agy: `agy_run.py <bài> ink` (Hydrogen) |
+| B4 | Đọc mọi vùng viết tay của các nguồn đã chốt ở B3, kể cả slide (người dùng bỏ giới hạn slide ngày 2026-11-17) | agy: `agy_run.py <bài> ink` (Hydrogen) |
 | B5 | Rút thẻ bằng chứng, rồi soạn nháp chú thích ngoặc đơn (2.3) và Phần B | agy: `agy_run.py <bài> cards` (Hydrogen medium), rồi `agy_run.py <bài> compose` (Hydrogen high) |
 | B6 | Xử lý mâu thuẫn theo 2.4: đọc **hết** `b6_pairs.py <bài>` (mọi dòng sách có chú thích, ⚑ là dòng agy báo), bắt cả điểm agy sót, viết `resolve`, tra guideline ngoài nếu cần; xem mục "Trang bằng chứng chưa có trong thẻ" để thêm ý agy bỏ sót ngay từ bước rút thẻ | Claude Code |
 | B7 | Kiểm tra theo mục 7, dựng **cả 2 bản** PDF (`b7_render.py` và `b8_render_b14.py`), gắn link nếu đã có | Script và Claude |
