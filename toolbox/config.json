@@ -6,9 +6,9 @@
   "ocr_lang": "vie",
   "edge": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
   "vlm": {
-    "server": "C:/Users/Admin/local-llm/llama/llama-server.exe",
-    "model": "C:/Users/Admin/local-llm/models/Qwen3VL-8B-Instruct-Q4_K_M.gguf",
-    "mmproj": "C:/Users/Admin/local-llm/models/mmproj-Qwen3VL-8B-Instruct-Q8_0.gguf",
+    "server": "D:/local-llm/llama/llama-server.exe",
+    "model": "D:/local-llm/models/Qwen3VL-8B-Instruct-Q4_K_M.gguf",
+    "mmproj": "D:/local-llm/models/mmproj-Qwen3VL-8B-Instruct-Q8_0.gguf",
     "args": [
       "-ngl",
       "99",
