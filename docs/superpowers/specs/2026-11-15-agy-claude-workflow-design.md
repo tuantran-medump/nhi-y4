@@ -1,6 +1,6 @@
 # Workflow agy + Claude cho giai đoạn B (soạn từng bài)
 
-> **Cập nhật 2026-11-16:** Claude không còn chạy `agy` hay `agy_run.py`. Người dùng tự chạy các lệnh đó, Claude chỉ chuẩn bị lệnh, rồi áp và kiểm tra kết quả. Xem "Quy tắc agy" trong `toolbox/PLAYBOOK.md`.
+> **Cập nhật 2026-11-18:** Claude lại tự chạy `agy_run.py`, lần lượt từng lệnh, dừng hẳn khi hết quota hoặc bị chặn (402/403). Giai đoạn 2026-11-16 đến 2026-11-18 người dùng tự chạy. Xem "Quy tắc agy" trong `toolbox/PLAYBOOK.md`.
 
 Ngày: 2026-11-15. Áp dụng từ lô Tiêu hóa - Dinh dưỡng (G2-B01 đến G2-B12).
 

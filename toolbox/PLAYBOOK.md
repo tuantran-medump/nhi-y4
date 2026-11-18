@@ -148,7 +148,7 @@ Chép sách in bằng model tại máy (từ 2026-11-16): trước B1 của mỗ
 | B7 | Kiểm tra theo mục 7, dựng **cả 2 bản** PDF (`b7_render.py` và `b8_render_b14.py`), gắn link nếu đã có | Script và Claude |
 
 **Quy tắc agy** (Antigravity, gói Google AI Pro, áp dụng từ lô Tiêu hóa - Dinh dưỡng):
-0. **Người dùng tự chạy `agy_run.py`** (từ 2026-11-16, vì Claude gọi agy, kể cả gián tiếp qua script, vi phạm chính sách của Google). Claude không chạy `agy_run.py`, `agy` hay bất kỳ lệnh nào gọi tới agy. Đến bước agy, Claude dừng và đưa người dùng đúng các lệnh `python toolbox/scripts/agy_run.py <bài> <bước>` cần chạy theo thứ tự. Người dùng báo xong thì Claude đọc `agy/log.jsonl`, chạy script áp và kiểm tra, rồi làm tiếp.
+0. **Claude tự chạy `agy_run.py`** (từ 2026-11-18, người dùng cho phép; trước đó người dùng tự chạy). Chạy **lần lượt từng lệnh**, không chạy song song (script có khóa `kho/agy_run.lock`, lệnh thứ hai thoát mã 4). Gặp mã thoát 3 (HẾT QUOTA/BỊ CHẶN: lỗi 402, 403, 429, quota, rate limit) thì **dừng hẳn**, không chạy lệnh agy nào nữa, không tự làm thay bằng Claude, báo người dùng. Lỗi khác (mã 1) thì xem nguyên nhân, sửa đầu vào nếu do mình, chạy lại tối đa một lần. Chỉ áp dụng cho `agy_run.py`; việc giao `agy -p` tùy ý ngoài pipeline vẫn để người dùng tự chạy.
 1. agy chỉ đọc: `agy_run.py` gọi `agy -p --mode plan`, agy in JSON, script kiểm rồi ghi vào đúng file của luồng cũ. agy không ghi file nào, nên không cần worktree.
 2. JSON sai cấu trúc thì script gọi lại 1 lần. agy lỗi hoặc hết hạn mức thì script dừng bước đó (mã thoát 1, ghi `kho/lessons/<bài>/agy/log.jsonl`). Người dùng báo lại cho Claude, Claude **không tự làm thay** bằng Claude.
 3. Chạy lại một bước sẽ bỏ qua phần đã có kết quả hợp lệ. Muốn làm lại thì thêm `--force`.

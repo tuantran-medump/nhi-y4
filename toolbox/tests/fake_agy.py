@@ -32,5 +32,5 @@ else:
     print(text)
 code = int(os.environ.get("FAKE_AGY_EXIT", "0"))
 if code:
-    print("AGY_ERROR: {\"status\":\"FAKE\"}", file=sys.stderr)
+    print(os.environ.get("FAKE_AGY_STDERR", "AGY_ERROR: {\"status\":\"FAKE\"}"), file=sys.stderr)
 sys.exit(code)

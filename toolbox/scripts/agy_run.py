@@ -37,6 +37,16 @@ class AgyError(RuntimeError):
     pass
 
 
+class QuotaError(AgyError):
+    """402/403/429 hoặc hết hạn mức: dừng hẳn, không thử lại, không chạy phần kế tiếp."""
+
+
+QUOTA = re.compile(r"\b(402|403|429)\b|quota|RESOURCE_EXHAUSTED|rate.?limit|payment required|forbidden|"
+                   r"hạn mức", re.I)
+EXIT_QUOTA = 3
+LOCK_NAME = "agy_run.lock"  # chỉ một agy_run chạy tại một thời điểm (người dùng dặn 2026-11-18)
+
+
 class DeniedToolError(AgyError):
     """agy gọi công cụ bị chế độ không tương tác từ chối và trả lời rỗng; đáng gọi lại một lần."""
 
@@ -80,14 +90,18 @@ def call(prompt: str, model: str, add_dirs: list[str], timeout_s: int = 1200) ->
         raise AgyError(f"agy quá {timeout_s}s") from e
     # Quá --print-timeout agy vẫn in phần trả lời dở, nên mã thoát phải xét trước
     if res.returncode != 0 or "AGY_ERROR:" in (res.stderr or ""):
-        raise AgyError(f"agy thoát mã {res.returncode}: {(res.stderr or '')[-500:]}")
+        # Chỉ xét quota ở nhánh lỗi, để chữ "403" trong câu trả lời bình thường không làm dừng nhầm
+        kind = QuotaError if QUOTA.search((res.stderr or "") + (res.stdout or "")[-2000:]) else AgyError
+        raise kind(f"agy thoát mã {res.returncode}: {(res.stderr or '')[-500:]}")
     # --output-format json: {"status": "SUCCESS", "response": "..."}; ở dạng chữ thô agy có lúc in rỗng
     try:
         wrapper = json.loads(res.stdout)
     except json.JSONDecodeError as e:
         raise AgyError(f"agy không trả JSON bọc ngoài: {res.stdout[:300]}") from e
     if wrapper.get("status") != "SUCCESS":
-        raise AgyError(f"agy status {wrapper.get('status')}: {str(wrapper)[:300]}")
+        kind = QuotaError if QUOTA.search(json.dumps({k: v for k, v in wrapper.items() if k != "response"},
+                                                     ensure_ascii=False)) else AgyError
+        raise kind(f"agy status {wrapper.get('status')}: {str(wrapper)[:300]}")
     response = wrapper.get("response") or ""
     if not response.strip() and wrapper.get("denied_actions"):
         denied = ", ".join(d.get("display_name", d.get("action", "?")) for d in wrapper["denied_actions"])
@@ -497,10 +511,11 @@ def run(lesson: str, step_name: str, part: int | None = None, model: str | None 
         try:
             data = ask_json(build_prompt(step, p), use, dirs, lambda d, p=p: step.validate(d, lesson, p))
         except AgyError as e:
+            quota = isinstance(e, QuotaError)
             _log(lesson, {"step": step_name, "part": p.index, "model": use, "seconds": round(time.time() - t),
-                          "status": "error", "error": str(e)[:300]})
-            print(f"DỪNG {lesson} {step_name} phần {p.index}/{p.total}: {e}")
-            return 1
+                          "status": "quota" if quota else "error", "error": str(e)[:300]})
+            print(f"{'HẾT QUOTA/BỊ CHẶN' if quota else 'DỪNG'} {lesson} {step_name} phần {p.index}/{p.total}: {e}")
+            return EXIT_QUOTA if quota else 1
         step.write(lesson, p, data)
         done += 1
         _log(lesson, {"step": step_name, "part": p.index, "model": use, "seconds": round(time.time() - t), "status": "ok"})
@@ -509,6 +524,33 @@ def run(lesson: str, step_name: str, part: int | None = None, model: str | None 
     # Trạng thái agy nằm trong agy/log.jsonl; bước B chỉ ghi vào sổ khi đã áp và kiểm xong.
     print(f"{lesson} {step_name}: {done}/{len(parts)} phần có kết quả hợp lệ")
     return 0
+
+
+def locked(fn: Callable[[], int]) -> int:
+    """Chỉ cho một agy_run chạy tại một thời điểm. Khóa của tiến trình đã chết thì bỏ qua."""
+    path = common.kho_path(LOCK_NAME)
+    old = common.read_text(path).strip() if os.path.exists(path) else ""
+    if old.isdigit() and _pid_alive(int(old)):
+        print(f"Đang có agy_run khác chạy (pid {old}), không chạy song song")
+        return 4
+    common.write_text(path, str(os.getpid()))
+    try:
+        return fn()
+    finally:
+        if os.path.exists(path):
+            os.remove(path)
+
+
+def _pid_alive(pid: int) -> bool:
+    if os.name == "nt":  # os.kill(pid, 0) trên Windows sẽ kết thúc tiến trình, không dùng được để thăm dò
+        out = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH"], capture_output=True, text=True,
+                             errors="replace").stdout
+        return str(pid) in out.split()
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
 
 
 def main() -> None:
@@ -520,7 +562,7 @@ def main() -> None:
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
-    sys.exit(run(a.lesson, a.step, a.part, a.model, a.force))
+    sys.exit(locked(lambda: run(a.lesson, a.step, a.part, a.model, a.force)))
 
 
 if __name__ == "__main__":

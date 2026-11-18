@@ -189,6 +189,28 @@ class TestSteps(FakeAgy, unittest.TestCase):
         p = os.path.join(self.dir, "agy", "log.jsonl")
         return [json.loads(l) for l in open(p, encoding="utf-8")] if os.path.exists(p) else []
 
+    def test_quota_error_stops_with_exit_3_and_no_retry(self):
+        with open(os.path.join(self.dir, "units.txt"), "w", encoding="utf-8") as f:
+            f.write("1\tdòng")
+        os.environ["FAKE_AGY_EXIT"] = "1"
+        os.environ["FAKE_AGY_STDERR"] = "Error 403: quota exceeded"
+        try:
+            self.assertEqual(agy_run.run(self.L, "layout"), agy_run.EXIT_QUOTA)
+        finally:
+            os.environ.pop("FAKE_AGY_STDERR", None)
+        self.assertEqual(len(self.calls()), 1)
+        self.assertEqual(self.log()[-1]["status"], "quota")
+
+    def test_lock_blocks_second_run_and_clears_stale(self):
+        lock = os.path.join(self.tmp, "kho", agy_run.LOCK_NAME)
+        with open(lock, "w") as f:
+            f.write(str(os.getpid()))  # tiến trình đang sống
+        self.assertEqual(agy_run.locked(lambda: 0), 4)
+        with open(lock, "w") as f:
+            f.write("999999")  # tiến trình đã chết
+        self.assertEqual(agy_run.locked(lambda: 7), 7)
+        self.assertFalse(os.path.exists(lock))
+
     def test_missing_input_file_stops_before_calling_agy(self):
         self.outputs("[]")
         self.assertEqual(agy_run.run(self.L, "layout"), 1)  # chưa có units.txt
