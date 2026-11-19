@@ -24,6 +24,8 @@ from scripts.b5_annotate import NOTE_OK  # noqa: E402
 
 HYDROGEN = "gemini-4-hydrogen-medium"
 HYDROGEN_HIGH = "gemini-4-hydrogen-high"  # soạn nháp: gộp thẻ cần suy luận nhiều hơn
+# OCR (review, ink): thử G1-B04 ngày 2026-11-19, Neon sửa đúng thêm chữ Hydrogen bỏ sót, đọc tốc ký tốt hơn, chậm hơn ~1,6 lần
+NEON = "gemini-4-neon-medium"
 SONNET = "claude-sonnet-5-5-medium"
 OPUS = "claude-opus-5-5-medium"
 # Thiếu câu này, chế độ plan của agy lập kế hoạch rồi chờ duyệt thay vì trả lời (thăm dò 2026-11-15)
@@ -319,7 +321,7 @@ def _layout_validate(d: object, lesson: str, part: Part) -> list[str]:
 
 
 # review (B2) và ink (B4): theo lô id, mỗi id một file kết quả
-def _batch_parts(tasks_path: str, base_dir: str) -> list[Part]:
+def _batch_parts(tasks_path: str, base_dir: str, model: str = NEON) -> list[Part]:
     raw = common.read_json(tasks_path, [])
     tasks = raw.get("tasks", []) if isinstance(raw, dict) else raw
     lots = [tasks[i:i + BATCH] for i in range(0, len(tasks), BATCH)]
@@ -328,7 +330,7 @@ def _batch_parts(tasks_path: str, base_dir: str) -> list[Part]:
         # Liệt kê từng file ảnh, chữ: chỉ đưa thư mục thì agy có lúc kết thúc mà không trả lời (chạy thử G2-B01)
         files = [os.path.join(base_dir, t[k]) for t in lot for k in ("image", "text") if t.get(k)]
         ids = [t["id"] for t in lot]
-        parts.append(Part(i, len(lots), HYDROGEN, [tasks_path, *files], ids=ids, note="Chỉ làm các id: " + ", ".join(ids)))
+        parts.append(Part(i, len(lots), model, [tasks_path, *files], ids=ids, note="Chỉ làm các id: " + ", ".join(ids)))
     return parts
 
 

@@ -216,6 +216,13 @@ class TestSteps(FakeAgy, unittest.TestCase):
         self.assertEqual(agy_run.run(self.L, "layout"), 1)  # chưa có units.txt
         self.assertEqual(self.calls(), [])
 
+    def test_ocr_batch_parts_use_neon(self):
+        tasks = os.path.join(self.tmp, "tasks.json")
+        with open(tasks, "w", encoding="utf-8") as f:
+            json.dump([{"id": f"p{i}", "image": f"p{i}.png", "text": f"p{i}.txt"} for i in range(8)], f)
+        parts = agy_run._batch_parts(tasks, self.tmp)
+        self.assertEqual([p.model for p in parts], [agy_run.NEON, agy_run.NEON])
+
     def test_cards_parts_all_use_hydrogen(self):
         self.outputs(json.dumps(CARDS))
         self.assertEqual(agy_run.run(self.L, "cards"), 0)
