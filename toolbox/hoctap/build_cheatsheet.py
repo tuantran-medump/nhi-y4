@@ -22,7 +22,9 @@ def render(md, style):
     out=['<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>'+inline(title)+'</title><link rel="stylesheet" href="../styles/'+style+'.css"></head><body class="style-'+style+'"><header><h1>'+inline(title)+'</h1><div class="sub">'+inline(sub)+'</div></header><div class="cols">']
     for sec in sections:
         if sec.level == 0: continue
-        out.append('<section class="bx '+sec.box+'"><h2>'+inline(sec.title)+'<span class="kick">'+esc(LABELS[sec.box])+'</span></h2>')
+        wide=any(x.strip()=='{rong}' for x in sec.lines)
+        if wide: sec.lines=[x for x in sec.lines if x.strip()!='{rong}']
+        out.append('<section class="bx '+sec.box+(' wide' if wide else '')+'"><h2>'+inline(sec.title)+'<span class="kick">'+esc(LABELS[sec.box])+'</span></h2>')
         i=0
         while i<len(sec.lines):
             line=sec.lines[i]

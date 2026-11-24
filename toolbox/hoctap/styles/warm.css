@@ -25,3 +25,7 @@ table{border-collapse:collapse;width:calc(100% - 16px);font-size:8.5pt;margin:3p
 /* bảng: không bẻ giữa từ, cột đầu đủ rộng để đọc */
 table td,table th{overflow-wrap:normal;word-break:normal;hyphens:none}
 table th:first-child,table td:first-child{min-width:7.5em}
+
+/* mục rộng: chiếm cả hai cột (bảng so sánh nhiều cột) */
+.cols section.wide{column-span:all;margin-bottom:8px}
+section.wide table th:first-child,section.wide table td:first-child{width:11em}

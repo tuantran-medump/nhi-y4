@@ -6,6 +6,7 @@ Mọi bên (trình dựng `build_cheatsheet.py`, ba file CSS, agy) bám đúng f
 
 - Dòng `# Tiêu đề` (một dòng, trước mọi mục) là tiêu đề chính. Các dòng văn bản ngay dưới đó, trước mục `##` đầu tiên, là dòng phụ đầu trang (`div.sub`), giữ nguyên HTML nội tuyến.
 - Mỗi mục: `## Tên mục`, tiếp theo (tùy chọn) dòng `{hop: <loai>}` đúng như `boxes.py` đọc. Không có thì `khai-niem`. Dùng `boxes.parse_sections`.
+- Dòng `{rong}` ngay sau `{hop: ...}`: mục chiếm cả bề ngang trang (HTML thêm lớp `wide` vào `section`; dùng cho bảng nhiều cột). Dòng này không in ra.
 - Thân mục: danh sách `- ` (lồng bằng thụt 2 dấu cách), bảng dạng ống `| a | b |` (dòng ngăn `|---|` đánh dấu hàng đầu là `th`; bảng không có dòng ngăn thì mọi hàng là `td`), đoạn văn thường.
 - `**đậm**` là `<b>`.
 - Ba loại nhấn nội tuyến, viết bằng HTML nguyên văn: `<span class="n">số cần nhớ</span>`, `<span class="k">nguồn khác sách</span>`, `<span class="t">bẫy</span>`. Đây là **ba thẻ duy nhất** được đi qua; mọi `<`, `>`, `&` khác trong văn bản là ký tự thường và trình dựng thoát thành thực thể (vì vậy `<30 g/L` viết thẳng được).
