@@ -26,3 +26,10 @@ Sổ tay quy trình: `toolbox/PLAYBOOK.md`. Quy tắc agy: chỉ tự chạy `to
 
 - Repo công khai `nhi-y4`: 53 commit chưa push (tính cả commit bàn giao này là 54). Chỉ push khi được yêu cầu.
 - `toolbox/data/ocr_dict.tsv` đang sửa dở từ trước, cùng các file chưa theo dõi (`debug.log`, `extra_data.py`, `ocr-qwen-test.png`, `on-tap/`, `toolbox/data/*.csv|json`): chưa rõ giữ hay bỏ.
+
+## Giai đoạn 3 hoctap (2026-11-24, xong)
+
+- Gói `research` của agent-kit: `node C:\Users\Admin\agent-kit\scripts\new-project.mjs <thư-mục> --research` (hoctap, kb, patterns, mục 10 PROJECT.md). Đã merge vào `main` của agent-kit (fc0f815, repo không có remote nên chưa push).
+- Vault Obsidian của KB: `C:\Users\Admin\orca\kb-y4\obsidian\nhi` (đã mở được; làm mới bằng `kb_obsidian.py`).
+- Còn chờ người dùng: duyệt 16 cạnh KB lấy trang theo `<<pN>>` (`kb-y4\review\edges-moi-2026-11-24.md`); HCTH.md dòng 102/125/132 chưa tách được trang; Excalidraw chưa kiểm giao diện tương tác; kb-y4 chưa có remote.
+- Kế hoạch giai đoạn 3 `docs/superpowers/plans/2026-11-24-kb-y4-giai-doan-3.md` vẫn chưa theo dõi trong git.
