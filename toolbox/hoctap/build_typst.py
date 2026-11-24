@@ -39,7 +39,7 @@ def inline(text: str, color: str) -> str:
         elif m[1] == "k": out.append(f'#highlight(fill: rgb("#fdeeb4"))[{esc(m[2])}]')
         elif m[1] == "t": out.append(f'#text(fill: rgb("#a3261a"))[{esc(m[2])}]')
         elif m[3] is not None: out.append(f'#text(weight: "bold")[{esc(m[3])}]')
-        elif m[4] is not None: out.append(f'#text(size: 7pt, fill: rgb("#665f58"))[\[{esc(m[4])}\]]')
+        elif m[4] is not None: out.append(f'#text(size: 7pt, fill: rgb("#665f58"))[\\[{esc(m[4])}\\]]')
         else: out.append(r'#text(weight: "bold", fill: rgb("#a3261a"))[\[?\]]')
         pos = m.end()
     out.append(esc(text[pos:]))
