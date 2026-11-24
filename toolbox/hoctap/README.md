@@ -55,3 +55,9 @@ Chạy thật 2026-11-24. Cài `@excalidraw/mermaid-to-excalidraw` 3.6.0 và `@e
 - File mở được bằng thư viện Excalidraw: `restore` rồi `exportToSvg` (`excalidraw/render.js`) ra hình kiểu vẽ tay đúng nội dung (ảnh trong `out/excali/`).
 - **Chưa kiểm:** mở file bằng giao diện tương tác của excalidraw.com (hộp chọn file hệ thống, công cụ trình duyệt không nạp được), và MCP của yctimlin. Chỉ hỗ trợ flowchart như nguồn nói; bố cục tự động còn đè nhãn cạnh lên nhau.
 - Không dùng cho sản phẩm chính; chỉ khi người dùng muốn sửa tay lưu đồ.
+
+### Quy tắc bản Excalidraw (người dùng chốt 2026-11-24)
+
+- **Không chú thích nguồn** (mã `[G1:p203]`...) trong bản Excalidraw; mã chỉ ở Mermaid/HTML/PDF để kiểm.
+- **Gộp nhánh cùng loại:** nút → nút loại (vd "Biểu hiện") → từng nội dung, khi một nút có từ 2 nhánh cùng quan hệ.
+- Dùng `python excalidraw/to_excalidraw.py <file.mmd> <ra.excalidraw>` (đã áp cả hai quy tắc, có test).
