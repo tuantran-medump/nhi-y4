@@ -1,0 +1,12 @@
+@font-face{font-family:"Symbols";src:url("../../templates/fonts/Inter.ttf") format("truetype");font-weight:100 900;unicode-range:U+00B7,U+03B1,U+03B2,U+2264,U+2265,U+25B2}
+:root {
+  --hop-khai-niem: #2f6db0; --hop-khai-niem-nen: #e6eef9;
+  --hop-dich-te-phan-loai: #1f7f78; --hop-dich-te-phan-loai-nen: #e0f1ef;
+  --hop-benh-hoc: #8a6a1c; --hop-benh-hoc-nen: #f4ecd5;
+  --hop-lam-sang: #3b7d3a; --hop-lam-sang-nen: #e5f1df;
+  --hop-cls-chi-dinh: #b8611f; --hop-cls-chi-dinh-nen: #fbe9dc;
+  --hop-dieu-tri: #b23a62; --hop-dieu-tri-nen: #fae4ea;
+  --hop-canh-bao-bien-chung: #a3261a; --hop-canh-bao-bien-chung-nen: #fbe3df;
+  --hop-theo-doi: #4b6177; --hop-theo-doi-nen: #e6ecf1;
+  --hop-tu-kiem-tra: #7b6400; --hop-tu-kiem-tra-nen: #fff3c4;
+}

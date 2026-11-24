@@ -6,6 +6,12 @@ _BOXES = frozenset({
     "khai-niem", "dich-te-phan-loai", "benh-hoc", "lam-sang",
     "cls-chi-dinh", "dieu-tri", "canh-bao-bien-chung", "theo-doi", "tu-kiem-tra",
 })
+LABELS = {
+    "khai-niem": "khái niệm", "dich-te-phan-loai": "dịch tễ và phân loại", "benh-hoc": "bệnh học",
+    "lam-sang": "lâm sàng", "cls-chi-dinh": "cận lâm sàng và chỉ định", "dieu-tri": "điều trị",
+    "canh-bao-bien-chung": "cảnh báo và biến chứng", "theo-doi": "theo dõi", "tu-kiem-tra": "tự kiểm tra",
+}
+assert set(LABELS) == _BOXES
 _HEADING = re.compile(r"^(#{2,3})\s+(.*)$")
 _MARKER = re.compile(r"^\{hop:\s*(.*?)\s*\}$")
 
