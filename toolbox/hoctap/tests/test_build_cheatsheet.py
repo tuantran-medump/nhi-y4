@@ -16,12 +16,12 @@ class BuildCheatsheetTests(unittest.TestCase):
         self.assertIn('<th>A</th>', render('# D\n## P\n| A | B |\n|---|---|', 'screen'))
         with self.assertRaises(SystemExit): render('# D', 'bad')
 
-
-if __name__ == '__main__': unittest.main()
-
     def test_rong_marker_adds_wide_class_and_is_not_printed(self):
         nl = chr(10)
         page = render(nl.join(['# D', '## P', '{hop: lam-sang}', '{rong}', '- x']), 'warm')
         self.assertIn('class="bx lam-sang wide"', page)
         self.assertNotIn('{rong}', page)
         self.assertNotIn('wide', render(nl.join(['# D', '## P', '{hop: lam-sang}', '- x']), 'warm'))
+
+
+if __name__ == '__main__': unittest.main()
