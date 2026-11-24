@@ -36,3 +36,17 @@ Chạy thật ngày 2026-11-24 trên HCTH, phong cách B14 ấm (`python build_t
 | Chỗ chưa ổn | | các dòng của ý bị xuống dòng chồng khít nhau trong hộp (khoảng cách dòng trong `block` chưa chỉnh); chưa có Dancing Script và Patrick Hand dạng ttf |
 
 Chưa kết luận: người dùng quyết giữ HTML hay đổi. Không đổi pipeline khi chưa duyệt.
+
+## Lưu đồ và sơ đồ tư duy từ KB (Task 6)
+
+`python kb_flow.py C:/Users/Admin/orca/kb-y4/nhi --root nhi:hcth --kind approach|dxtx --out out/flow` sinh `.mmd` (Mermaid) và `.md` (markmap) cho HCTH và VCTC. Mỗi nút và cạnh có mã nguồn của cạnh KB; cạnh không nguồn bị loại vào `*-gaps.csv` (lần chạy 2026-11-24: 0 cạnh bị loại). `check_diagram.py <file> --kb <KB>` kiểm mã nguồn, nhãn trùng thực thể KB và nhánh "CLS khó phân biệt"; cả 8 file qua. Dựng thật: `node_modules/.bin/mmdc -i x.mmd -o x.svg -p out/pp.json` (4 file, ra SVG) và `node_modules/.bin/markmap x.md -o x.html --no-open --offline` (4 file, ra HTML). Nhãn cạnh Mermaid ghi cả quan hệ ("cần phân biệt [S114:p4]").
+
+Hạn chế đã biết: KB thiếu nhánh `la_the_cua` cho VCTC, cách xử trí phân biệt HCTH với hội chứng Cushing do corticoid, và VCTC với bệnh thận IgA / viêm cầu thận tăng sinh màng; nên các lưu đồ chỉ đầy đủ như KB hiện có. Lưu đồ tiếp cận xếp phẳng quanh gốc, chưa gom nhánh trong Mermaid (markmap có gom nhóm).
+
+## Bảng so sánh và bảng phân độ (Task 7)
+
+Nguồn `content/SO-SANH-HCTH-VCTC.md` (không vào git), dùng cú pháp bảng ống của CONTRACT, dựng bằng `build_cheatsheet.py` cả ba style, `check_fonts` OK. Ô nào cũng có mã nguồn của bài tương ứng (kiểm bằng script: 109 ô dữ liệu, thiếu mã chỉ ở ô tiêu đề cột của bảng phân độ). Chỉ giữ ý cả hai bài đều có; albumin và lipid bị bỏ vì B12 không nêu. B12 không có phân độ nặng nhẹ chính thức cho VCTC nên mục phân độ chủ yếu là phần HCTH và bậc xử trí THA của VCTC. Một số ô lấy mã trang theo dấu `<<pN>>` gần nhất vì câu gốc không có mã riêng; một số ô lấy cả nhóm mã chung từ ghi chú.
+
+## Thử Excalidraw (Task 8)
+
+Chạy thật 2026-11-24: `npm i @excalidraw/mermaid-to-excalidraw` (3.6.0), gói thành IIFE bằng `npx esbuild excalidraw/entry.js --bundle --format=iife`, nạp vào trang HTML và chạy trong Edge headless (`--virtual-time-budget=20000 --dump-dom`). Kết quả: lưu đồ tiếp cận VCTC (18 nút, 21 cạnh) chuyển được sang 39 phần tử Excalidraw (rectangle và arrow, đủ 39 nhãn tiếng Việt kèm mã nguồn). **Chưa làm:** ghi thành file `.excalidraw`, mở trong giao diện Excalidraw, và thử MCP của yctimlin; mới kiểm chuyển đổi. Chỉ hỗ trợ flowchart như nguồn nói. Không dùng cho sản phẩm chính khi chưa kiểm mở được file.
