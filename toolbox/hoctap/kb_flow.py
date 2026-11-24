@@ -6,7 +6,7 @@ from collections import defaultdict
 from pathlib import Path
 
 
-SOURCE_RE = re.compile(r"^\[[A-Z]+\d*:p\d+\]$")
+SOURCE_RE = re.compile(r"^\[[A-Z]+\d*:p\d+(?:-\d+)?(?:,p\d+(?:-\d+)?)*\]$")
 RELATIONS = {"approach": {"bieu_hien", "phan_biet_voi", "xu_tri_phan_biet", "khi_cls_kho_phan_biet"},
              "dxtx": {"la_the_cua", "dieu_tri", "bien_chung"}}
 
@@ -16,7 +16,7 @@ def read_rows(path):
         return list(csv.DictReader(f))
 
 
-REL_LABEL = {"bieu_hien": "biểu hiện", "phan_biet_voi": "cần phân biệt", "xu_tri_phan_biet": "cách phân biệt",
+REL_LABEL = {"bieu_hien": "biểu hiện", "phan_biet_voi": "cần phân biệt", "xu_tri_phan_biet": "cận lâm sàng chẩn đoán phân biệt",
              "khi_cls_kho_phan_biet": "nếu CLS khó phân biệt", "la_the_cua": "thể", "dieu_tri": "điều trị",
              "bien_chung": "biến chứng", "la_nguyen_nhan_cua": "nguyên nhân", "la_benh_nen_cua": "bệnh nền",
              "yeu_to_khoi_phat": "khởi phát"}
