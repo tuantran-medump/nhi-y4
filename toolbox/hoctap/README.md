@@ -20,3 +20,19 @@ Kết quả chạy thử thật ngày 2026-11-24 trên máy người dùng (Wind
 
 - `out/` và `node_modules/` không đưa vào git.
 - Edge headless in PDF: `--print-to-pdf` kèm `--user-data-dir` riêng và `--allow-file-access-from-files` (như bản dựng thử).
+
+## Typst so với HTML (Task 5)
+
+Chạy thật ngày 2026-11-24 trên HCTH, phong cách B14 ấm (`python build_typst.py content/HCTH.md --out out` và `python build_cheatsheet.py content/HCTH.md --style warm --out out --pdf`).
+
+| Tiêu chí | HTML + Edge | Typst 0.15.1 |
+|---|---|---|
+| Thời gian dựng (đo 2 lần, từ lệnh Python) | 1,25–1,30 s | 0,25–0,26 s (typst 0,13–0,15 s) |
+| Số trang | 3 | 3 |
+| Chữ Việt, `≥ ≤ α β ▲ ·` | `check_fonts` OK (kèm cảnh báo Type3) | `check_fonts` OK với Inter, Oswald |
+| Rơi chữ so với bản HTML | `check_roundtrip` khớp | không mất chữ (lệch chỉ do ngắt dòng và dấu nháy) |
+| Độ giống bản mẫu | chuẩn | gần: hộp, màu, nhãn, bẫy thi, bảng có đủ; tiêu đề đổi sang Oswald (Typst không đọc woff2, máy chỉ có Great Vibes ttf, vỡ chữ Việt hoa), ghi chú `span.k` dùng Inter thay Patrick Hand |
+| Độ dễ sửa | CSS 23 dòng + 67 dòng dựng | 121 dòng dựng, bố cục nằm trong chuỗi mã sinh `.typ` |
+| Chỗ chưa ổn | | các dòng của ý bị xuống dòng chồng khít nhau trong hộp (khoảng cách dòng trong `block` chưa chỉnh); chưa có Dancing Script và Patrick Hand dạng ttf |
+
+Chưa kết luận: người dùng quyết giữ HTML hay đổi. Không đổi pipeline khi chưa duyệt.
