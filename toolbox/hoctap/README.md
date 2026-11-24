@@ -35,7 +35,7 @@ Chạy thật ngày 2026-11-24 trên HCTH, phong cách B14 ấm (`python build_t
 | Độ dễ sửa | CSS 23 dòng + 67 dòng dựng | 121 dòng dựng, bố cục nằm trong chuỗi mã sinh `.typ` |
 | Chỗ chưa ổn | | các dòng của ý bị xuống dòng chồng khít nhau trong hộp (khoảng cách dòng trong `block` chưa chỉnh); chưa có Dancing Script và Patrick Hand dạng ttf |
 
-Chưa kết luận: người dùng quyết giữ HTML hay đổi. Không đổi pipeline khi chưa duyệt.
+**Quyết định (người dùng, 2026-11-24): giữ HTML + Edge.** `build_typst.py` giữ lại như bản thử, không dùng cho sản phẩm chính.
 
 ## Lưu đồ và sơ đồ tư duy từ KB (Task 6)
 
@@ -49,4 +49,9 @@ Nguồn `content/SO-SANH-HCTH-VCTC.md` (không vào git), dùng cú pháp bảng
 
 ## Thử Excalidraw (Task 8)
 
-Chạy thật 2026-11-24: `npm i @excalidraw/mermaid-to-excalidraw` (3.6.0), gói thành IIFE bằng `npx esbuild excalidraw/entry.js --bundle --format=iife`, nạp vào trang HTML và chạy trong Edge headless (`--virtual-time-budget=20000 --dump-dom`). Kết quả: lưu đồ tiếp cận VCTC (18 nút, 21 cạnh) chuyển được sang 39 phần tử Excalidraw (rectangle và arrow, đủ 39 nhãn tiếng Việt kèm mã nguồn). **Chưa làm:** ghi thành file `.excalidraw`, mở trong giao diện Excalidraw, và thử MCP của yctimlin; mới kiểm chuyển đổi. Chỉ hỗ trợ flowchart như nguồn nói. Không dùng cho sản phẩm chính khi chưa kiểm mở được file.
+Chạy thật 2026-11-24. Cài `@excalidraw/mermaid-to-excalidraw` 3.6.0 và `@excalidraw/excalidraw` 0.18 (kèm react, react-dom); gói bằng `npx esbuild excalidraw/entry.js --bundle --format=iife --define:process.env.NODE_ENV='"production"' --define:process.env.IS_PREACT='"false"'` (esbuild chạy qua `npx`, không lưu vào package.json); nạp vào trang HTML và chạy trong Edge headless (`--virtual-time-budget=30000 --dump-dom`). Kết quả:
+
+- Lưu đồ tiếp cận VCTC (18 nút, 21 cạnh) chuyển được sang file `.excalidraw` (78 phần tử: rectangle, arrow, text; nhãn tiếng Việt kèm mã nguồn đủ dấu).
+- File mở được bằng thư viện Excalidraw: `restore` rồi `exportToSvg` (`excalidraw/render.js`) ra hình kiểu vẽ tay đúng nội dung (ảnh trong `out/excali/`).
+- **Chưa kiểm:** mở file bằng giao diện tương tác của excalidraw.com (hộp chọn file hệ thống, công cụ trình duyệt không nạp được), và MCP của yctimlin. Chỉ hỗ trợ flowchart như nguồn nói; bố cục tự động còn đè nhãn cạnh lên nhau.
+- Không dùng cho sản phẩm chính; chỉ khi người dùng muốn sửa tay lưu đồ.
