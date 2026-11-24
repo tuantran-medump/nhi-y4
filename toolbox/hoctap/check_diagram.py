@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 
-SOURCE_RE = re.compile(r"\[([A-Z]+\d*:p\d+)\]")
+SOURCE_RE = re.compile(r"\[([A-Z]+\d*:p\d+(?:-\d+)?(?:,p\d+(?:-\d+)?)*)\]")
 FIXED_LABELS = {
     "Các biểu hiện chính", "Phân biệt", "Nếu cận lâm sàng khó phân biệt thì làm gì",
     "Các thể", "Điều trị", "Biến chứng",
